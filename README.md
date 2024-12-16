@@ -8,10 +8,8 @@
   - route context
 - V0 & tailwind for UI
 - Xstate for state management
-- VideoJS/Shaka
-- Effect?
-- Valibot
-- rspack & biome
+- Shaka
+- Effect: fetch/config/schema
 
 ## Features
 - Login
