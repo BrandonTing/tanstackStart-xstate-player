@@ -1,47 +1,36 @@
-import * as fs from "node:fs";
 // app/routes/index.tsx
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
+import { Effect } from "effect";
+import { ResourceApi, resourceRuntime } from "../services/resourceApi";
 
-const filePath = "count.txt";
+const program = Effect.gen(function*( ){
+  const resourceApi = yield* ResourceApi
+  return yield* resourceApi.getPopular
+}).pipe(
+  Effect.catchTags({
+    FetchError: (e) => Effect.succeed(`Fetch error: ${e.message}`),
+    JsonError: (e) => Effect.succeed(`Json error: ${e.message}`),
+    ParseError: (e) => Effect.succeed(`Parse error: ${e.message}`),
+  })
+);
 
-async function readCount() {
-	return Number.parseInt(
-		await fs.promises.readFile(filePath, "utf-8").catch(() => "0"),
-	);
-}
-
-const getCount = createServerFn({
+const getPopularMovies = createServerFn({
 	method: "GET",
 }).handler(() => {
-	return readCount();
+	return resourceRuntime.runPromise(program)
 });
-
-const updateCount = createServerFn({ method: "POST" })
-	.validator((d: number) => d)
-	.handler(async ({ data }) => {
-		const count = await readCount();
-		await fs.promises.writeFile(filePath, `${count + data}`);
-	});
 
 export const Route = createFileRoute("/")({
 	component: Home,
-	loader: async () => await getCount(),
+	loader: async () => {
+    return await getPopularMovies()},
 });
 
 function Home() {
 	const router = useRouter();
 	const state = Route.useLoaderData();
-	return (
-		<button
-			type="button"
-			onClick={() => {
-				updateCount({ data: 1 }).then(() => {
-					router.invalidate();
-				});
-			}}
-		>
-			Add 1 to {state}?
-		</button>
-	);
+	return <div>
+    {JSON.stringify(state, null, 2)}
+  </div>
 }
