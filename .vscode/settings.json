@@ -1,0 +1,9 @@
+{
+  "typescript.preferences.autoImportFileExcludePatterns": ["@radix-ui"],
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.codeActionsOnSave":{
+    "source.organizeImports.biome": "explicit"
+  }
+}

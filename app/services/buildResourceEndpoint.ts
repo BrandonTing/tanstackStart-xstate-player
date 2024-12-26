@@ -11,7 +11,7 @@ export class GetResourceEndpoint extends Context.Tag("GetResourceEndpoint")<
       const apiKey = yield* Config.redacted("api_key");
       const apiKeyValue = Redacted.value(apiKey)
       const hasQS = url.includes("?")
-      return `${url}${hasQS ? "" : "?"}api_key=${apiKeyValue}`
+      return `${url}${hasQS ? "&" : "?"}api_key=${apiKeyValue}`
     })
   )
 };

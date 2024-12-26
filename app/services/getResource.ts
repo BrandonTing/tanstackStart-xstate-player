@@ -12,7 +12,6 @@ export class GetResource extends Context.Tag("GetResource")<
     (url) => Effect.gen(function* () {
       const getResourceEndpoint = yield* GetResourceEndpoint
       const endpoint = yield* getResourceEndpoint(url)
-
       const response = yield* Effect.tryPromise({
         try: () => fetch(endpoint),
         catch: () => new FetchError()
