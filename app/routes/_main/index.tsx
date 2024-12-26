@@ -5,7 +5,9 @@ import { createServerFn } from "@tanstack/start";
 import { Effect, Schema } from "effect";
 const contentTypeSchema = Schema.Literal("tv", "movie");
 const mainRouteSearchParam = Schema.Struct({
-	contentType: contentTypeSchema,
+	contentType: Schema.optionalWith(contentTypeSchema, {
+		default: () => "tv",
+	}),
 });
 
 export type ContentType = typeof mainRouteSearchParam.Type.contentType;
@@ -43,7 +45,7 @@ const getTrendingContent = createServerFn({
 
 export const Route = createFileRoute("/_main/")({
 	component: Home,
-	loaderDeps: ({ search: { contentType } }) => ({ contentType: contentType }),
+	loaderDeps: ({ search: { contentType } }) => ({ contentType }),
 	loader: async ({ deps: { contentType } }) =>
 		await getTrendingContent({
 			data: contentType,

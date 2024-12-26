@@ -8,10 +8,16 @@ export class GetResourceEndpoint extends Context.Tag("GetResourceEndpoint")<
   static readonly Live = Layer.succeed(
     this,
     (url) => Effect.gen(function* () {
+      const baseUrl = yield* Config.string("base_url").pipe(
+        Config.validate({
+          message: "Expected a string start with https:// and end with /",
+          validation: (s) => s.startsWith("https://") && s.endsWith("/")
+        })
+      )
       const apiKey = yield* Config.redacted("api_key");
       const apiKeyValue = Redacted.value(apiKey)
       const hasQS = url.includes("?")
-      return `${url}${hasQS ? "&" : "?"}api_key=${apiKeyValue}`
+      return `${baseUrl}${url}${hasQS ? "&" : "?"}api_key=${apiKeyValue}`
     })
   )
 };
