@@ -1,5 +1,5 @@
 // app/routes/index.tsx
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { Effect } from "effect";
 import { ResourceApi, resourceRuntime } from "../services/resourceApi";
@@ -23,12 +23,10 @@ const getPopularMovies = createServerFn({
 
 export const Route = createFileRoute("/")({
 	component: Home,
-	loader: async () => {
-    return await getPopularMovies()},
+	loader: async () => await getPopularMovies(),
 });
 
 function Home() {
-	const router = useRouter();
 	const state = Route.useLoaderData();
 	return <div>
     {JSON.stringify(state, null, 2)}

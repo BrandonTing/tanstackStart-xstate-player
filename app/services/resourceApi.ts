@@ -1,15 +1,19 @@
 import { Effect, Layer, ManagedRuntime } from "effect";
 import { decodeTrend } from "../schema/schema";
 import { GetResourceEndpoint } from "./buildResourceEndpoint";
+import { getBaseUrl } from "./getBaseUrl";
 import { GetResource } from "./getResource";
+
+const GetResourceLayer = Layer.mergeAll(GetResource.Live, GetResourceEndpoint.Live)
 
 const make = {
   getPopular: Effect.gen(function* () {
     const getResource = yield* GetResource
-    const getResourceProgram = getResource("https://api.themoviedb.org/3/movie/popular")
+    const baseUrl = yield* getBaseUrl
+    const getResourceProgram = getResource(`${baseUrl}popular`)
     const json = yield* getResourceProgram
     return yield* decodeTrend(json);
-  }).pipe(Effect.provide(Layer.mergeAll(GetResource.Live, GetResourceEndpoint.Live))),
+  }).pipe(Effect.provide(GetResourceLayer)),
 }
 
 export class ResourceApi extends Effect.Service<ResourceApi>()(
