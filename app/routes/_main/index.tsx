@@ -69,7 +69,7 @@ function Home() {
 					id={featuredMovie.id}
 					title={featuredMovie.title}
 					description={featuredMovie.overview}
-					imageUrl={featuredMovie.poster_path}
+					imageUrl={featuredMovie.posterPath}
 				/>
 			) : null}
 		</main>

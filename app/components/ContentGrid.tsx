@@ -4,8 +4,8 @@ import { Link } from "@tanstack/react-router";
 interface Content {
 	id: number;
 	title: string;
-	poster_path: string;
-	release_date: string;
+	posterPath: string;
+	releaseDate: string;
 }
 
 interface ContentGridProps {
@@ -29,7 +29,7 @@ export function ContentGrid({ title, contents, limit }: ContentGridProps) {
 					>
 						<div className="relative aspect-[2/3] overflow-hidden rounded-md">
 							<img
-								src={content.poster_path}
+								src={content.posterPath}
 								alt={content.title}
 								className="transition-transform duration-200 group-hover:scale-105"
 							/>
@@ -38,7 +38,7 @@ export function ContentGrid({ title, contents, limit }: ContentGridProps) {
 							{content.title}
 						</h3>
 						<p className="text-xs text-gray-400">
-							{new Date(content.release_date).getFullYear()}
+							{new Date(content.releaseDate).getFullYear()}
 						</p>
 					</Link>
 				))}
