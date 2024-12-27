@@ -1,5 +1,6 @@
 // app/routes/__root.tsx
 import "@/index.css";
+import css from  "@/index.css?url";
 import {
 	Outlet,
 	ScrollRestoration,
@@ -22,6 +23,10 @@ export const Route = createRootRoute({
 				title: "TanStack Start Starter",
 			},
 		],
+    links: [{
+      href: css,
+      rel: "stylesheet"
+    }]
 	}),
 	component: RootComponent,
 });
