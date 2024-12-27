@@ -29,3 +29,5 @@ export class GetResource extends Context.Tag("GetResource")<
     }).pipe(Effect.provide(GetResourceEndpoint.Live))
   )
 };
+
+export const GetResourceLayer = Layer.mergeAll(GetResource.Live, GetResourceEndpoint.Live)

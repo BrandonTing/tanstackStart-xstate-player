@@ -9,9 +9,8 @@ function RouteComponent() {
 	return (
 		<div className="min-h-screen bg-black">
 			<Header />
-			<main>
-				<Outlet />
-			</main>
+      <Outlet />
+      
 		</div>
 	);
 }

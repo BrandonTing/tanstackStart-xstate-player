@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as MainImport } from './routes/_main'
 import { Route as MainIndexImport } from './routes/_main/index'
+import { Route as MainMoviesImport } from './routes/_main/movies'
 
 // Create/Update Routes
 
@@ -27,6 +28,12 @@ const MainIndexRoute = MainIndexImport.update({
   getParentRoute: () => MainRoute,
 } as any)
 
+const MainMoviesRoute = MainMoviesImport.update({
+  id: '/movies',
+  path: '/movies',
+  getParentRoute: () => MainRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -37,6 +44,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof MainImport
       parentRoute: typeof rootRoute
+    }
+    '/_main/movies': {
+      id: '/_main/movies'
+      path: '/movies'
+      fullPath: '/movies'
+      preLoaderRoute: typeof MainMoviesImport
+      parentRoute: typeof MainImport
     }
     '/_main/': {
       id: '/_main/'
@@ -51,10 +65,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface MainRouteChildren {
+  MainMoviesRoute: typeof MainMoviesRoute
   MainIndexRoute: typeof MainIndexRoute
 }
 
 const MainRouteChildren: MainRouteChildren = {
+  MainMoviesRoute: MainMoviesRoute,
   MainIndexRoute: MainIndexRoute,
 }
 
@@ -62,25 +78,28 @@ const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)
 
 export interface FileRoutesByFullPath {
   '': typeof MainRouteWithChildren
+  '/movies': typeof MainMoviesRoute
   '/': typeof MainIndexRoute
 }
 
 export interface FileRoutesByTo {
+  '/movies': typeof MainMoviesRoute
   '/': typeof MainIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_main': typeof MainRouteWithChildren
+  '/_main/movies': typeof MainMoviesRoute
   '/_main/': typeof MainIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/'
+  fullPaths: '' | '/movies' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_main' | '/_main/'
+  to: '/movies' | '/'
+  id: '__root__' | '/_main' | '/_main/movies' | '/_main/'
   fileRoutesById: FileRoutesById
 }
 
@@ -108,8 +127,13 @@ export const routeTree = rootRoute
     "/_main": {
       "filePath": "_main.tsx",
       "children": [
+        "/_main/movies",
         "/_main/"
       ]
+    },
+    "/_main/movies": {
+      "filePath": "_main/movies.tsx",
+      "parent": "/_main"
     },
     "/_main/": {
       "filePath": "_main/index.tsx",

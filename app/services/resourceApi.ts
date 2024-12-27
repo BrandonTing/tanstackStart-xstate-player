@@ -1,23 +1,20 @@
-import { Effect, Layer, ManagedRuntime } from "effect";
-import type { ContentType } from "../routes/_main/";
-import { decodeTrend } from "../schema/schema";
-import { GetResourceEndpoint } from "./buildResourceEndpoint";
-import { GetResource } from "./getResource";
-
-const GetResourceLayer = Layer.mergeAll(GetResource.Live, GetResourceEndpoint.Live)
+import { Effect, ManagedRuntime } from "effect";
+import { decodeTrend } from "../schema/trend";
+import { GetResource, GetResourceLayer } from "./getResource";
 
 const make = {
-  getPopular: Effect.gen(function* () {
+  getTrending: Effect.gen(function* () {
     const getResource = yield* GetResource
-    const getResourceProgram = getResource("popular")
-    const json = yield* getResourceProgram
-    return yield* decodeTrend(json);
-  }).pipe(Effect.provide(GetResourceLayer)),
-  getTrending: (contentType: ContentType) => Effect.gen(function* () {
-    const getResource = yield* GetResource
-    const getResourceProgram = getResource(`trending/${contentType}/day?language=en-US`)
-    const json = yield* getResourceProgram
-    return yield* decodeTrend(json);
+    const getTVTrendingProgram = getResource("trending/tv/day?language=en-US")
+    const tvTrendingJson = yield* getTVTrendingProgram
+    const trendingTvShows =  yield* decodeTrend(tvTrendingJson);
+    const getMovieTrendingProgram = getResource("trending/movie/day?language=en-US")
+    const movieTrendingJson = yield* getMovieTrendingProgram
+    const trendingMovies =  yield* decodeTrend(movieTrendingJson);
+    return {
+      trendingTvShows,
+      trendingMovies
+    }
   }).pipe(Effect.provide(GetResourceLayer)),
 }
 

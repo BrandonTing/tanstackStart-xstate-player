@@ -14,7 +14,7 @@ export function Header() {
 						</li>
 						<li>
 							<Link
-								to="/"
+								to="/movies"
 								search={{
 									contentType: "tv",
 								}}
@@ -24,13 +24,7 @@ export function Header() {
 							</Link>
 						</li>
 						<li>
-							<Link
-								to="/"
-								search={{
-									contentType: "movie",
-								}}
-								className="text-white hover:text-gray-300"
-							>
+							<Link to="/movies" className="text-white hover:text-gray-300">
 								Movies
 							</Link>
 						</li>

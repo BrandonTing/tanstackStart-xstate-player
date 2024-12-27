@@ -1,4 +1,5 @@
 import { FeaturedMovie } from "@/components/FeaturedMovie";
+import type { Fail } from "@/lib/type";
 import { ResourceApi, resourceRuntime } from "@/services/resourceApi";
 // app/routes/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
@@ -13,18 +14,14 @@ const mainRouteSearchParam = Schema.Struct({
 
 export type ContentType = typeof mainRouteSearchParam.Type.contentType;
 
-type Fail = {
-	success: false;
-	message: string;
-};
 const getTrendingContent = createServerFn({
 	method: "GET",
 }).handler(() => {
 	return resourceRuntime.runPromise(
 		Effect.gen(function* () {
 			const resourceApi = yield* ResourceApi;
-			const trendingTvShows = yield* resourceApi.getTrending("tv");
-			const trendingMovies = yield* resourceApi.getTrending("movie");
+			const { trendingMovies, trendingTvShows } =
+				yield* resourceApi.getTrending;
 			return {
 				success: true as true,
 				tvShows: trendingTvShows,
@@ -42,11 +39,12 @@ const getTrendingContent = createServerFn({
 						success: false,
 						message: `Json error: ${e.message}`,
 					} as Fail),
-				ParseError: (e) =>
-					Effect.succeed({
+				ParseError: (e) => {
+					return Effect.succeed({
 						success: false,
 						message: `Parse error: ${e.message}`,
-					} as Fail),
+					} as Fail);
+				},
 			}),
 		),
 	);
@@ -65,7 +63,7 @@ function Home() {
 	const featuredMovie = state.movies.results[0];
 
 	return (
-		<>
+		<main>
 			{featuredMovie ? (
 				<FeaturedMovie
 					id={featuredMovie.id}
@@ -74,6 +72,6 @@ function Home() {
 					imageUrl={featuredMovie.poster_path}
 				/>
 			) : null}
-		</>
+		</main>
 	);
 }
