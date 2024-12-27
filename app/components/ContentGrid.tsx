@@ -1,3 +1,4 @@
+import type { DeepReadonly } from "@/lib/type";
 import { Link } from "@tanstack/react-router";
 
 interface Content {
@@ -9,7 +10,7 @@ interface Content {
 
 interface ContentGridProps {
 	title: string;
-	contents: Content[];
+	contents: DeepReadonly<Content[]>;
 	limit?: number;
 }
 
