@@ -8,7 +8,13 @@ export function Header() {
 				<nav>
 					<ul className="flex space-x-4">
 						<li>
-							<Link to="/" className="text-white hover:text-gray-300">
+							<Link
+								to="/"
+								className="text-white hover:text-gray-300"
+								activeProps={{
+									className: "font-bold border-b-2 border-red-600",
+								}}
+							>
 								Home
 							</Link>
 						</li>
@@ -19,12 +25,21 @@ export function Header() {
 									contentType: "tv",
 								}}
 								className="text-white hover:text-gray-300"
+								activeProps={{
+									className: "font-bold border-b-2 border-red-600",
+								}}
 							>
 								TV Shows
 							</Link>
 						</li>
 						<li>
-							<Link to="/movies" className="text-white hover:text-gray-300">
+							<Link
+								to="/movies"
+								className="text-white hover:text-gray-300"
+								activeProps={{
+									className: "font-bold border-b-2 border-red-600",
+								}}
+							>
 								Movies
 							</Link>
 						</li>
