@@ -8,6 +8,11 @@ export function Header() {
 				<nav>
 					<ul className="flex space-x-4">
 						<li>
+							<Link to="/" className="text-white hover:text-gray-300">
+								Home
+							</Link>
+						</li>
+						<li>
 							<Link
 								to="/"
 								search={{

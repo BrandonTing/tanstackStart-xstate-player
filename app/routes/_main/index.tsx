@@ -1,3 +1,4 @@
+import { FeaturedMovie } from "@/components/FeaturedMovie";
 import { ResourceApi, resourceRuntime } from "@/services/resourceApi";
 // app/routes/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
@@ -11,58 +12,68 @@ const mainRouteSearchParam = Schema.Struct({
 });
 
 export type ContentType = typeof mainRouteSearchParam.Type.contentType;
-const program = Effect.gen(function* () {
-	const resourceApi = yield* ResourceApi;
-	return yield* resourceApi.getPopular;
-}).pipe(
-	Effect.catchTags({
-		FetchError: (e) => Effect.succeed(`Fetch error: ${e.message}`),
-		JsonError: (e) => Effect.succeed(`Json error: ${e.message}`),
-		ParseError: (e) => Effect.succeed(`Parse error: ${e.message}`),
-	}),
-);
 
+type Fail = {
+	success: false;
+	message: string;
+};
 const getTrendingContent = createServerFn({
 	method: "GET",
-})
-	.validator((data: string) => {
-		return Effect.runSync(Schema.decodeUnknown(contentTypeSchema)(data));
-	})
-	.handler((ctx) => {
-		return resourceRuntime.runPromise(
-			Effect.gen(function* () {
-				const resourceApi = yield* ResourceApi;
-				return yield* resourceApi.getTrending(ctx.data);
-			}).pipe(
-				Effect.catchTags({
-					FetchError: (e) => Effect.succeed(`Fetch error: ${e.message}`),
-					JsonError: (e) => Effect.succeed(`Json error: ${e.message}`),
-					ParseError: (e) => Effect.succeed(`Parse error: ${e.message}`),
-				}),
-			),
-		);
-	});
+}).handler(() => {
+	return resourceRuntime.runPromise(
+		Effect.gen(function* () {
+			const resourceApi = yield* ResourceApi;
+			const trendingTvShows = yield* resourceApi.getTrending("tv");
+			const trendingMovies = yield* resourceApi.getTrending("movie");
+			return {
+				success: true as true,
+				tvShows: trendingTvShows,
+				movies: trendingMovies,
+			};
+		}).pipe(
+			Effect.catchTags({
+				FetchError: (e) =>
+					Effect.succeed({
+						success: false,
+						message: `Fetch error: ${e.message}`,
+					} as Fail),
+				JsonError: (e) =>
+					Effect.succeed({
+						success: false,
+						message: `Json error: ${e.message}`,
+					} as Fail),
+				ParseError: (e) =>
+					Effect.succeed({
+						success: false,
+						message: `Parse error: ${e.message}`,
+					} as Fail),
+			}),
+		),
+	);
+});
 
 export const Route = createFileRoute("/_main/")({
 	component: Home,
-	loaderDeps: ({ search: { contentType } }) => ({ contentType }),
-	loader: async ({ deps: { contentType } }) =>
-		await getTrendingContent({
-			data: contentType,
-		}),
-	validateSearch: (
-		search: Record<string, unknown>,
-	): typeof mainRouteSearchParam.Type => {
-		// validate and parse the search params into a typed state
-		return Effect.runSync(Schema.decodeUnknown(mainRouteSearchParam)(search));
-	},
+	loader: async () => await getTrendingContent(),
 });
 
 function Home() {
 	const state = Route.useLoaderData();
-	if (typeof state === "string") {
-		return <h1>{state}</h1>;
+	if (!state.success) {
+		return <p className="pt-20 text-white">{state.message}</p>;
 	}
+	const featuredMovie = state.movies.results[0];
 
-	return <div className="pt-20 text-white">{state.results[0].title}</div>;
+	return (
+		<>
+			{featuredMovie ? (
+				<FeaturedMovie
+					id={featuredMovie.id}
+					title={featuredMovie.title}
+					description={featuredMovie.overview}
+					imageUrl={featuredMovie.poster_path}
+				/>
+			) : null}
+		</>
+	);
 }

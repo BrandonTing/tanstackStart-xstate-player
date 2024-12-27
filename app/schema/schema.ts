@@ -1,13 +1,27 @@
 import { Schema } from "effect";
 
+const posterSchema = Schema.transform(Schema.String, Schema.String, {
+  strict: true,
+  encode: (to) => {
+    return to.split("original")[1] ?? ""
+  },
+  decode: (from) => {
+    return `https://image.tmdb.org/t/p/original${from}`
+  }
+})
+
 const TVSchema = Schema.Struct({
   id: Schema.Number,
-  name: Schema.String
+  name: Schema.String,
+  overview: Schema.String,
+  poster_path: posterSchema
 })
 
 const MovieSchema = Schema.Struct({
   id: Schema.Number,
-  title: Schema.String
+  title: Schema.String,
+  overview: Schema.String,
+  poster_path: posterSchema
 })
 
 /** Schema **/
@@ -20,16 +34,16 @@ export class Trend extends Schema.Class<Trend>("Trend")({
         MovieSchema,
         {
           strict: true,
-          encode: (to) => {
+          encode: ({title, ...to}) => {
             return {
-              id: to.id,
-              name: to.title
+              ...to,
+              name: title,
             }
           },
-          decode: (from) => {
+          decode: ({name, ...from}) => {
             return {
-              id: from.id,
-              title: from.name
+              ...from,
+              title: name,
             }
           }
         }
