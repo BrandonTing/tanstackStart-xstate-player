@@ -5,9 +5,10 @@ import {
 	decodeMovieApiKey,
 	moviesRuntime,
 } from "@/services/movieApi";
-import { Await, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { Console, Effect } from "effect";
+import { use } from "react";
 
 const getMoviesProgram = (type: MovieApiKetType) => {
 	return Effect.gen(function* () {
@@ -63,6 +64,9 @@ export const Route = createFileRoute("/_main/movies")({
 
 function RouteComponent() {
 	const { nowPlaying, popular, topRated, upcoming } = Route.useLoaderData();
+	const popularData = use(popular);
+	const topRatedData = use(topRated);
+	const upcomingData = use(upcoming);
 	return (
 		<main className="container px-4 pt-24 mx-auto">
 			<h1 className="mb-8 text-4xl font-bold ">Movies</h1>
@@ -73,36 +77,23 @@ function RouteComponent() {
 					limit={5}
 				/>
 			) : null}
-			<Await promise={popular} fallback={<div>Loading...</div>}>
-				{(data) => {
-					if (!data) {
-						return null;
-					}
-					return (
-						<ContentGrid title="Popular" contents={data.results} limit={5} />
-					);
-				}}
-			</Await>
-			<Await promise={topRated} fallback={<div>Loading...</div>}>
-				{(data) => {
-					if (!data) {
-						return null;
-					}
-					return (
-						<ContentGrid title="Top Rated" contents={data.results} limit={5} />
-					);
-				}}
-			</Await>
-			<Await promise={upcoming} fallback={<div>Loading...</div>}>
-				{(data) => {
-					if (!data) {
-						return null;
-					}
-					return (
-						<ContentGrid title="Upcoming" contents={data.results} limit={5} />
-					);
-				}}
-			</Await>
+			{popularData ? (
+				<ContentGrid title="Popular" contents={popularData.results} limit={5} />
+			) : null}
+			{topRatedData ? (
+				<ContentGrid
+					title="Top Rated"
+					contents={topRatedData.results}
+					limit={5}
+				/>
+			) : null}
+			{upcomingData ? (
+				<ContentGrid
+					title="Upcoming"
+					contents={upcomingData.results}
+					limit={5}
+				/>
+			) : null}
 		</main>
 	);
 }
