@@ -1,68 +1,110 @@
 import { ContentGrid } from "@/components/ContentGrid";
-import type { Fail } from "@/lib/type";
-import { MoviesApi, moviesRuntime } from "@/services/movieApi";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+	MoviesApi,
+	type MoviesApiType,
+	keySchema,
+	moviesRuntime,
+} from "@/services/movieApi";
+import { Await, createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { Effect } from "effect";
+import { Console, Effect, Schema } from "effect";
 
+const getMoviesProgram = (type: MoviesApiType) => {
+	return Effect.gen(function* () {
+		const movieApi = yield* MoviesApi;
+		const list = yield* movieApi[type];
+		return list;
+	}).pipe(
+		Effect.catchTags({
+			FetchError: (e) => {
+				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			JsonError: (e) => {
+				Effect.runSync(Console.error(`Json error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			ParseError: (e) => {
+				Effect.runSync(Console.error(`Parse error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+		}),
+	);
+};
 const getMovies = createServerFn({
 	method: "GET",
-}).handler(() => {
-	return moviesRuntime.runPromise(
-		Effect.gen(function* () {
-			const movieApi = yield* MoviesApi;
-			const nowPlaying = yield* movieApi.getNowPlaying;
-			return {
-				success: true as true,
-				nowPlaying,
-			};
-		}).pipe(
-			Effect.catchTags({
-				FetchError: (e) =>
-					Effect.succeed({
-						success: false,
-						message: `Fetch error: ${e.message}`,
-					} as Fail),
-				JsonError: (e) =>
-					Effect.succeed({
-						success: false,
-						message: `Json error: ${e.message}`,
-					} as Fail),
-				ParseError: (e) =>
-					Effect.succeed({
-						success: false,
-						message: `Parse error: ${e.message}`,
-					} as Fail),
-			}),
-		),
-	);
-});
+})
+	.validator((type: MoviesApiType) =>
+		Effect.runSync(Schema.decode(keySchema)(type)),
+	)
+	.handler((ctx) => moviesRuntime.runPromise(getMoviesProgram(ctx.data)));
 
 export const Route = createFileRoute("/_main/movies")({
 	component: RouteComponent,
 	loader: async () => {
-		const nowPlaying = await getMovies();
-		return nowPlaying;
+		const nowPlaying = await getMovies({
+			data: "getNowPlaying",
+		});
+		const popular = getMovies({
+			data: "getPopular",
+		});
+		const topRated = getMovies({
+			data: "getTopRated",
+		});
+		const upcoming = getMovies({
+			data: "getUpcoming",
+		});
+		return {
+			nowPlaying,
+			popular,
+			topRated,
+			upcoming,
+		};
 	},
 });
 
 function RouteComponent() {
-	const state = Route.useLoaderData();
-	if (!state.success) {
-		return <p className="pt-20 text-white">{state.message}</p>;
-	}
-
+	const { nowPlaying, popular, topRated, upcoming } = Route.useLoaderData();
 	return (
 		<main className="container px-4 pt-24 mx-auto">
-			<h1 className="mb-8 text-4xl font-bold text-white">Movies</h1>
-			<ContentGrid
-				title="Now Playing"
-				contents={state.nowPlaying.results}
-				limit={5}
-			/>
-			{/* <ContentGrid title="Popular" contents={popular} limit={5} />
-			<ContentGrid title="Top Rated" contents={topRated} limit={5} />
-			<ContentGrid title="Upcoming" contents={upcoming} limit={5} /> */}
+			<h1 className="mb-8 text-4xl font-bold ">Movies</h1>
+			{nowPlaying ? (
+				<ContentGrid
+					title="Now Playing"
+					contents={nowPlaying.results}
+					limit={5}
+				/>
+			) : null}
+			<Await promise={popular} fallback={<div>Loading...</div>}>
+				{(data) => {
+					if (!data) {
+						return null;
+					}
+					return (
+						<ContentGrid title="Popular" contents={data.results} limit={5} />
+					);
+				}}
+			</Await>
+			<Await promise={topRated} fallback={<div>Loading...</div>}>
+				{(data) => {
+					if (!data) {
+						return null;
+					}
+					return (
+						<ContentGrid title="Top Rated" contents={data.results} limit={5} />
+					);
+				}}
+			</Await>
+			<Await promise={upcoming} fallback={<div>Loading...</div>}>
+				{(data) => {
+					if (!data) {
+						return null;
+					}
+					return (
+						<ContentGrid title="Upcoming" contents={data.results} limit={5} />
+					);
+				}}
+			</Await>
 		</main>
 	);
 }

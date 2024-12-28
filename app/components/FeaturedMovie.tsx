@@ -21,15 +21,15 @@ export function FeaturedMovie({
 		>
 			<div className="absolute inset-0 bg-gradient-to-r from-black to-transparent">
 				<div className="container flex flex-col justify-center h-full px-4 mx-auto">
-					<h1 className="mb-4 text-5xl font-bold text-white">{title}</h1>
-					<p className="max-w-xl mb-6 text-lg text-white">{description}</p>
+					<h1 className="mb-4 text-5xl font-bold ">{title}</h1>
+					<p className="max-w-xl mb-6 text-lg ">{description}</p>
 					<div className="space-x-4">
 						<Link href={`/watch/${id}`}>
 							<Button variant="default" size="lg">
 								Play
 							</Button>
 						</Link>
-						<Button variant="outline" size="lg">
+						<Button variant="outline" size="lg" className="text-black">
 							More Info
 						</Button>
 					</div>

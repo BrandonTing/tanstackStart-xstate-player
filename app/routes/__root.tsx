@@ -1,6 +1,6 @@
 // app/routes/__root.tsx
 import "@/index.css";
-import css from  "@/index.css?url";
+import css from "@/index.css?url";
 import {
 	Outlet,
 	ScrollRestoration,
@@ -23,10 +23,12 @@ export const Route = createRootRoute({
 				title: "TanStack Start Starter",
 			},
 		],
-    links: [{
-      href: css,
-      rel: "stylesheet"
-    }]
+		links: [
+			{
+				href: css,
+				rel: "stylesheet",
+			},
+		],
 	}),
 	component: RootComponent,
 });
@@ -45,7 +47,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 			<head>
 				<Meta />
 			</head>
-			<body>
+			<body className="text-white bg-black">
 				{children}
 				<ScrollRestoration />
 				<Scripts />

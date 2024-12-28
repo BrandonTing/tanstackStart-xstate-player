@@ -1,8 +1,8 @@
 import { Schema } from "effect"
 import { MovieSchema } from "./base"
 
-export class NowPlayingMovies extends Schema.Class<NowPlayingMovies>("NowPlayingMovies")({
+export class MovieList extends Schema.Class<MovieList>("MovieList")({
   results: Schema.Array(MovieSchema),
 }) { }
 
-export const decodeNowPlayingMovies = Schema.decodeUnknown(NowPlayingMovies)
+export const decodeMovieList = Schema.decodeUnknown(MovieList)

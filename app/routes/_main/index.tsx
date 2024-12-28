@@ -58,7 +58,7 @@ export const Route = createFileRoute("/_main/")({
 function Home() {
 	const state = Route.useLoaderData();
 	if (!state.success) {
-		return <p className="pt-20 text-white">{state.message}</p>;
+		return <p className="pt-20 ">{state.message}</p>;
 	}
 	const featuredMovie = state.movies.results[0];
 

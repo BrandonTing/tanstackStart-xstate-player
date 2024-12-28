@@ -19,7 +19,7 @@ export function ContentGrid({ title, contents, limit }: ContentGridProps) {
 
 	return (
 		<div className="mb-8">
-			<h2 className="mb-4 text-2xl font-semibold text-white">{title}</h2>
+			<h2 className="mb-4 text-2xl font-semibold ">{title}</h2>
 			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
 				{displayedContents.map((content) => (
 					<Link
@@ -34,7 +34,7 @@ export function ContentGrid({ title, contents, limit }: ContentGridProps) {
 								className="transition-transform duration-200 group-hover:scale-105"
 							/>
 						</div>
-						<h3 className="mt-2 text-sm font-medium text-white transition-colors group-hover:text-gray-300">
+						<h3 className="mt-2 text-sm font-medium  transition-colors group-hover:text-gray-300">
 							{content.title}
 						</h3>
 						<p className="text-xs text-gray-400">

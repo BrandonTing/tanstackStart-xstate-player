@@ -10,7 +10,7 @@ export function Header() {
 						<li>
 							<Link
 								to="/"
-								className="text-white hover:text-gray-300"
+								className=" hover:text-gray-300"
 								activeProps={{
 									className: "font-bold border-b-2 border-red-600",
 								}}
@@ -24,7 +24,7 @@ export function Header() {
 								search={{
 									contentType: "tv",
 								}}
-								className="text-white hover:text-gray-300"
+								className=" hover:text-gray-300"
 								activeProps={{
 									className: "font-bold border-b-2 border-red-600",
 								}}
@@ -35,7 +35,7 @@ export function Header() {
 						<li>
 							<Link
 								to="/movies"
-								className="text-white hover:text-gray-300"
+								className=" hover:text-gray-300"
 								activeProps={{
 									className: "font-bold border-b-2 border-red-600",
 								}}
