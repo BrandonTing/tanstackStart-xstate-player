@@ -1,15 +1,15 @@
 import { ContentGrid } from "@/components/ContentGrid";
 import {
+	type MovieApiKetType,
 	MoviesApi,
-	type MoviesApiType,
-	keySchema,
+	decodeMovieApiKey,
 	moviesRuntime,
 } from "@/services/movieApi";
 import { Await, createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { Console, Effect, Schema } from "effect";
+import { Console, Effect } from "effect";
 
-const getMoviesProgram = (type: MoviesApiType) => {
+const getMoviesProgram = (type: MovieApiKetType) => {
 	return Effect.gen(function* () {
 		const movieApi = yield* MoviesApi;
 		const list = yield* movieApi[type];
@@ -34,9 +34,7 @@ const getMoviesProgram = (type: MoviesApiType) => {
 const getMovies = createServerFn({
 	method: "GET",
 })
-	.validator((type: MoviesApiType) =>
-		Effect.runSync(Schema.decode(keySchema)(type)),
-	)
+	.validator((type: MovieApiKetType) => Effect.runSync(decodeMovieApiKey(type)))
 	.handler((ctx) => moviesRuntime.runPromise(getMoviesProgram(ctx.data)));
 
 export const Route = createFileRoute("/_main/movies")({
