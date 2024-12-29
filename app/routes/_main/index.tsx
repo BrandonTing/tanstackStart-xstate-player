@@ -1,4 +1,5 @@
 import { FeaturedMovie } from "@/components/FeaturedMovie";
+import { HomeContentRow } from "@/components/HomeContentRow";
 import type { Fail } from "@/lib/type";
 import { ResourceApi, resourceRuntime } from "@/services/resourceApi";
 // app/routes/index.tsx
@@ -60,7 +61,8 @@ function Home() {
 	if (!state.success) {
 		return <p className="pt-20 ">{state.message}</p>;
 	}
-	const featuredMovie = state.movies.results[0];
+	const { movies, tvShows } = state;
+	const featuredMovie = movies.results[0];
 
 	return (
 		<main>
@@ -72,6 +74,10 @@ function Home() {
 					imageUrl={featuredMovie.posterPath}
 				/>
 			) : null}
+			<div className="container px-4 py-8 mx-auto">
+				<HomeContentRow title="TV Shows" contents={tvShows.results} />
+				<HomeContentRow title="Movies" contents={movies.results} />
+			</div>
 		</main>
 	);
 }

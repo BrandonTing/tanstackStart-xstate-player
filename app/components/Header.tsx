@@ -20,10 +20,8 @@ export function Header() {
 						</li>
 						<li>
 							<Link
-								to="/movies"
-								search={{
-									contentType: "tv",
-								}}
+								to="/tvShows"
+								preload="intent"
 								className=" hover:text-gray-300"
 								activeProps={{
 									className: "font-bold border-b-2 border-red-600",
@@ -35,6 +33,7 @@ export function Header() {
 						<li>
 							<Link
 								to="/movies"
+								preload="intent"
 								className=" hover:text-gray-300"
 								activeProps={{
 									className: "font-bold border-b-2 border-red-600",
