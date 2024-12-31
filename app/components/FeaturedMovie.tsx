@@ -29,7 +29,7 @@ export function FeaturedMovie({
 								Play
 							</Button>
 						</Link>
-						<Link to={`/detail/movies/${id}`}>
+						<Link to={`/detail/movies/${id}`} preload="intent">
 							<Button variant="outline" size="lg" className="text-black">
 								More Info
 							</Button>

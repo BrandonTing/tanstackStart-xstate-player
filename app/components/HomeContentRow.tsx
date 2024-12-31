@@ -71,6 +71,7 @@ export function HomeContentRow({ title, contents }: HomeContentRowProps) {
 						key={content.id}
 						to={`/detail/${title === "TV Shows" ? "tvShows" : "movies"}/${content.id}`}
 						className="flex-none"
+            preload="intent"
 					>
 						<img
 							src={content.posterPath}

@@ -19,7 +19,7 @@ export function CreditList({ creditList }: CreditListProps) {
 								className="w-24 rounded-lg h-36"
 							/>
 						) : null}
-						<span className="mt-2 text-sm text-white">{credit.name}</span>
+						<span className="w-24 mt-2 text-sm text-white truncate">{credit.name}</span>
 					</div>
 				))}
 			</div>
