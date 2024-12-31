@@ -31,6 +31,7 @@ export function ContentGrid({
 						key={content.id}
 						to={`/detail/${type}/${content.id}`}
 						className="group"
+            preload="intent"
 					>
 						<div className="relative aspect-[2/3] overflow-hidden rounded-md">
 							<img

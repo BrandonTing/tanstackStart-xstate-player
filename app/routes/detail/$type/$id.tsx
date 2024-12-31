@@ -49,6 +49,7 @@ const getMovieDeferred = createServerFn({
 
 export const Route = createFileRoute("/detail/$type/$id")({
 	component: RouteComponent,
+	staleTime: 60 * 1000 * 10,
 	loader: async ({ params: { type, id } }) => {
 		return Match.value(type).pipe(
 			Match.when("movies", async () => {
@@ -90,11 +91,14 @@ function RouteComponent() {
 							className="w-full h-auto rounded-lg shadow-lg"
 						/>
 					</div>
-					<div className="overflow-y-auto md:w-2/3 h-[85vh]" ref={(node) => {
-            if(node) {
-              node.scrollTo({top: 0})
-            }
-          }}>
+					<div
+						className="overflow-y-auto md:w-2/3 h-[85vh]"
+						ref={(node) => {
+							if (node) {
+								node.scrollTo({ top: 0 });
+							}
+						}}
+					>
 						<h1 className="mb-4 text-4xl font-bold text-white">{data.title}</h1>
 						<p className="mb-4 text-gray-400">{data.overview}</p>
 						<p className="mb-4 text-gray-400">
