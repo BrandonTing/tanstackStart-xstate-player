@@ -1,19 +1,18 @@
 import { ContentGrid } from "@/components/ContentGrid";
 import {
-	type MovieApiKeyType,
-	MoviesApi,
-	decodeMovieApiKey,
-	moviesRuntime,
-} from "@/services/movieApi";
+	TVShowsApi,
+	type TVShowsApiKeyType,
+	decodeTVShowsApiKey,
+	tvShowsApiRuntime,
+} from "@/services/tvShowsApi";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { Console, Effect } from "effect";
 import { use } from "react";
-
-const getMoviesProgram = (type: MovieApiKeyType) => {
+const getTVShowsProgram = (type: TVShowsApiKeyType) => {
 	return Effect.gen(function* () {
-		const movieApi = yield* MoviesApi;
-		const list = yield* movieApi[type];
+		const tvShowsApi = yield* TVShowsApi;
+		const list = yield* tvShowsApi[type];
 		return list;
 	}).pipe(
 		Effect.catchTags({
@@ -32,48 +31,58 @@ const getMoviesProgram = (type: MovieApiKeyType) => {
 		}),
 	);
 };
-const getMovies = createServerFn({
+const getTvShows = createServerFn({
 	method: "GET",
 })
-	.validator((type: MovieApiKeyType) => Effect.runSync(decodeMovieApiKey(type)))
-	.handler((ctx) => moviesRuntime.runPromise(getMoviesProgram(ctx.data)));
+	.validator((type: TVShowsApiKeyType) =>
+		Effect.runSync(decodeTVShowsApiKey(type)),
+	)
+	.handler((ctx) => tvShowsApiRuntime.runPromise(getTVShowsProgram(ctx.data)));
 
-export const Route = createFileRoute("/_main/movies")({
+export const Route = createFileRoute("/tvShows")({
 	component: RouteComponent,
+	staleTime: 30_000,
 	loader: async () => {
-		const nowPlaying = await getMovies({
-			data: "getNowPlaying",
+		const airingToday = await getTvShows({
+			data: "getAiringToday",
 		});
-		const popular = getMovies({
+		const onTheAir = getTvShows({
+			data: "getOnTheAir",
+		});
+		const popular = getTvShows({
 			data: "getPopular",
 		});
-		const topRated = getMovies({
+		const topRated = getTvShows({
 			data: "getTopRated",
 		});
-		const upcoming = getMovies({
-			data: "getUpcoming",
-		});
 		return {
-			nowPlaying,
+			airingToday,
+			onTheAir,
 			popular,
 			topRated,
-			upcoming,
 		};
 	},
 });
 
 function RouteComponent() {
-	const { nowPlaying, popular, topRated, upcoming } = Route.useLoaderData();
+	const { airingToday, onTheAir, popular, topRated } = Route.useLoaderData();
+	const onTheAirData = use(onTheAir);
 	const popularData = use(popular);
 	const topRatedData = use(topRated);
-	const upcomingData = use(upcoming);
 	return (
 		<main className="container px-4 pt-24 mx-auto">
-			<h1 className="mb-8 text-4xl font-bold ">Movies</h1>
-			{nowPlaying ? (
+			<h1 className="mb-8 text-4xl font-bold ">TV Shows</h1>
+			{airingToday ? (
 				<ContentGrid
-					title="Now Playing"
-					contents={nowPlaying.results}
+					title="Airing Today"
+					contents={airingToday.results}
+					limit={5}
+				/>
+			) : null}
+			{onTheAirData ? (
+				<ContentGrid
+					title="On The Air"
+					contents={onTheAirData.results}
 					limit={5}
 				/>
 			) : null}
@@ -84,13 +93,6 @@ function RouteComponent() {
 				<ContentGrid
 					title="Top Rated"
 					contents={topRatedData.results}
-					limit={5}
-				/>
-			) : null}
-			{upcomingData ? (
-				<ContentGrid
-					title="Upcoming"
-					contents={upcomingData.results}
 					limit={5}
 				/>
 			) : null}

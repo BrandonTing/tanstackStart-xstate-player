@@ -1,4 +1,5 @@
 // app/routes/__root.tsx
+import { Header } from "@/components/Header";
 import "@/index.css";
 import css from "@/index.css?url";
 import {
@@ -48,7 +49,10 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 				<Meta />
 			</head>
 			<body className="text-white bg-black">
-				{children}
+				<div className="min-h-screen">
+					<Header />
+					{children}
+				</div>
 				<ScrollRestoration />
 				<Scripts />
 			</body>

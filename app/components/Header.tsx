@@ -1,3 +1,4 @@
+import type { FileRoutesByTo } from "@/routeTree.gen";
 import { Link } from "@tanstack/react-router";
 // import { UserMenu } from "./UserMenu";
 
@@ -8,44 +9,39 @@ export function Header() {
 				<nav>
 					<ul className="flex space-x-4">
 						<li>
-							<Link
-								to="/"
-								className=" hover:text-gray-300"
-								activeProps={{
-									className: "font-bold border-b-2 border-red-600",
-								}}
-							>
-								Home
-							</Link>
+							<HeaderLink to="/">Home</HeaderLink>
 						</li>
 						<li>
-							<Link
-								to="/tvShows"
-								preload="intent"
-								className=" hover:text-gray-300"
-								activeProps={{
-									className: "font-bold border-b-2 border-red-600",
-								}}
-							>
-								TV Shows
-							</Link>
+							<HeaderLink to="/tvShows">TV Shows</HeaderLink>
 						</li>
 						<li>
-							<Link
-								to="/movies"
-								preload="intent"
-								className=" hover:text-gray-300"
-								activeProps={{
-									className: "font-bold border-b-2 border-red-600",
-								}}
-							>
-								Movies
-							</Link>
+							<HeaderLink to="/movies">Movies</HeaderLink>
 						</li>
 					</ul>
 				</nav>
 				{/* <UserMenu /> */}
 			</div>
 		</header>
+	);
+}
+
+function HeaderLink({
+	to,
+	children,
+}: {
+	to: keyof FileRoutesByTo;
+	children: string;
+}) {
+	return (
+		<Link
+			to={to}
+			preload="intent"
+			className=" hover:text-gray-300"
+			activeProps={{
+				className: "font-bold border-b-2 border-red-600",
+			}}
+		>
+			{children}
+		</Link>
 	);
 }
