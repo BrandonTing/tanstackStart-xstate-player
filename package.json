@@ -7,7 +7,8 @@
     "build": "vinxi build",
     "start": "vinxi start",
     "format": "biome format --write",
-    "lint": "biome lint"
+    "lint": "biome lint",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -17,6 +18,7 @@
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "patch-package": "^8.0.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17"
   },
@@ -36,6 +38,7 @@
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "shaka-player": "4.12.5",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "valibot": "^1.0.0-beta.9",
