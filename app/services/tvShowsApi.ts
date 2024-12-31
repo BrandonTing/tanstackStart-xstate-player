@@ -1,10 +1,19 @@
 import type { FetchError, JsonError } from "@/errors/error";
+import { decodeCreditList } from "@/schema/base";
 import {
-  type TVShowsList,
-  decodeTVShowsDetail,
-  decodeTVShowsList
+	type TVShowsList,
+	decodeTVShowsDetail,
+	decodeTVShowsList,
 } from "@/schema/tvShows";
-import { Console, Effect, ManagedRuntime, Schema } from "effect";
+import {
+	Chunk,
+	Console,
+	Effect,
+	ManagedRuntime,
+	Schema,
+	Sink,
+	Stream,
+} from "effect";
 import type { ConfigError } from "effect/ConfigError";
 import type { ParseError } from "effect/ParseResult";
 import { GetResource, GetResourceLayer } from "./getResource";
@@ -53,14 +62,50 @@ export class TVShowsApi extends Effect.Service<TVShowsApi>()("TVShowsApi", {
 export const tvShowsApiRuntime = ManagedRuntime.make(TVShowsApi.Default);
 
 const makeTVShowsByIdApi = {
-  getTVSeriesDetail: (id:number) => {
-    return Effect.gen(function* () {
-      const getResource = yield* GetResource;
-      const tvShows = yield* getResource(`tv/${id}?language=en-US&page=1`);
-      return yield* decodeTVShowsDetail(tvShows);
-    }).pipe(Effect.provide(GetResourceLayer))
-  }
-}
+	getDetail: (id: number) => {
+		return Effect.gen(function* () {
+			const getResource = yield* GetResource;
+			const tvShows = yield* getResource(`tv/${id}?language=en-US&page=1`);
+			return yield* decodeTVShowsDetail(tvShows);
+		}).pipe(Effect.provide(GetResourceLayer));
+	},
+	getCredits: (id: number) => {
+		return Effect.gen(function* () {
+			const getResource = yield* GetResource;
+			const tvShows = yield* getResource(
+				`tv/${id}/credits?language=en-US&page=1`,
+			);
+			const { cast } = yield* decodeCreditList(tvShows);
+			const stream = Stream.fromIterable(cast);
+			const castsChunk = yield* stream.pipe(Stream.run(Sink.take(10)));
+			return Chunk.toReadonlyArray(castsChunk);
+		}).pipe(Effect.provide(GetResourceLayer));
+	},
+	getRecommendations: (id: number) => {
+		return Effect.gen(function* () {
+			const getResource = yield* GetResource;
+			const tvShows = yield* getResource(
+				`tv/${id}/recommendations?language=en-US&page=1`,
+			);
+			const { results } = yield* decodeTVShowsList(tvShows);
+			const stream = Stream.fromIterable(results);
+			const castsChunk = yield* stream.pipe(Stream.run(Sink.take(5)));
+			return Chunk.toReadonlyArray(castsChunk);
+		}).pipe(Effect.provide(GetResourceLayer));
+	},
+	getSimilar: (id: number) => {
+		return Effect.gen(function* () {
+			const getResource = yield* GetResource;
+			const tvShows = yield* getResource(
+				`tv/${id}/similar?language=en-US&page=1`,
+			);
+			const { results } = yield* decodeTVShowsList(tvShows);
+			const stream = Stream.fromIterable(results);
+			const castsChunk = yield* stream.pipe(Stream.run(Sink.take(5)));
+			return Chunk.toReadonlyArray(castsChunk);
+		}).pipe(Effect.provide(GetResourceLayer));
+	},
+};
 
 export class TVShowsByIdApi extends Effect.Service<TVShowsByIdApi>()(
 	"TVShowsByIdApi",
@@ -74,24 +119,49 @@ export const tvShowsByidApiRuntime = ManagedRuntime.make(
 );
 
 export const getTVSeriesDetailProgram = (id: number) => {
-  return Effect.gen(function* () {
-    const tvShowsByIdApi = yield* TVShowsByIdApi;
-    const detail = yield* tvShowsByIdApi.getTVSeriesDetail(id)
-    return detail;
-  }).pipe(
-    Effect.catchTags({
-      FetchError: (e) => {
-        Effect.runSync(Console.error(`Fetch error: ${e.message}`));
-        return Effect.succeed(null);
-      },
-      JsonError: (e) => {
-        Effect.runSync(Console.error(`Json error: ${e.message}`));
-        return Effect.succeed(null);
-      },
-      ParseError: (e) => {
-        Effect.runSync(Console.error(`Parse error: ${e.message}`));
-        return Effect.succeed(null);
-      },
-    }),
-  );
+	return Effect.gen(function* () {
+		const tvShowsByIdApi = yield* TVShowsByIdApi;
+		const detail = yield* tvShowsByIdApi.getDetail(id);
+		return detail;
+	}).pipe(
+		Effect.catchTags({
+			FetchError: (e) => {
+				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			JsonError: (e) => {
+				Effect.runSync(Console.error(`Json error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			ParseError: (e) => {
+				Effect.runSync(Console.error(`Parse error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+		}),
+	);
+};
+
+export const getTVSeriesDeferredDataProgram = (id: number) => {
+	return Effect.gen(function* () {
+		const tvShowsByIdApi = yield* TVShowsByIdApi;
+		const credits = yield* tvShowsByIdApi.getCredits(id);
+		const recommendations = yield* tvShowsByIdApi.getRecommendations(id);
+		const similar = yield* tvShowsByIdApi.getSimilar(id);
+		return { credits, recommendations, similar };
+	}).pipe(
+		Effect.catchTags({
+			FetchError: (e) => {
+				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			JsonError: (e) => {
+				Effect.runSync(Console.error(`Json error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			ParseError: (e) => {
+				Effect.runSync(Console.error(`Parse error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+		}),
+	);
 };

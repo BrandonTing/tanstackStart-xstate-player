@@ -1,11 +1,11 @@
 import { Schema } from "effect"
-import { BaseContentSchema, BaseDetailSchema, posterSchema } from "./base"
+import { BaseContentSchema, BaseDetailSchema, imgSchema } from "./base"
 
 export const TVSchema = Schema.transform(Schema.Struct({
   id: Schema.Number,
   name: Schema.String,
   overview: Schema.String,
-  poster_path: posterSchema,
+  poster_path: imgSchema,
   first_air_date: Schema.String
 }),BaseContentSchema, {
   encode: (to) => {
@@ -13,7 +13,7 @@ export const TVSchema = Schema.transform(Schema.Struct({
       id: to.id,
       name: to.title,
       overview: to.overview,
-      poster_path: to.posterPath,
+      poster_path: to.posterPath ?? "",
       first_air_date: to.releaseDate
     }
   },
@@ -38,7 +38,7 @@ export const TVShowDetailSchema = Schema.transform(Schema.Struct({
   id: Schema.Number,
   name: Schema.String,
   overview: Schema.String,
-  poster_path: posterSchema,
+  poster_path: imgSchema,
   first_air_date: Schema.String,
   genres: Schema.Array(Schema.Struct({
     id: Schema.Number,
@@ -58,7 +58,7 @@ export const TVShowDetailSchema = Schema.transform(Schema.Struct({
       id: to.id,
       name: to.title,
       overview: to.overview,
-      poster_path: to.posterPath,
+      poster_path: to.posterPath ?? "",
       first_air_date: to.releaseDate,
       vote_average: to.voteScore,
       seasons: to.seasons.map(season => {

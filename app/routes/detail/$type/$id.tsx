@@ -1,9 +1,13 @@
+import { ContentGrid } from "@/components/ContentGrid";
+import { CreditList } from "@/components/CreditList";
 import { Button } from "@/components/ui/button";
 import {
+	getMovieDeferredDataProgram,
 	getMoviesDetailProgram,
 	moviesByidApiRuntime,
 } from "@/services/movieApi";
 import {
+	getTVSeriesDeferredDataProgram,
 	getTVSeriesDetailProgram,
 	tvShowsByidApiRuntime,
 } from "@/services/tvShowsApi";
@@ -11,6 +15,7 @@ import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { Match } from "effect";
 import { Play, Plus, ThumbsUp } from "lucide-react";
+import { use } from "react";
 
 const getTvShowDetail = createServerFn({
 	method: "GET",
@@ -19,6 +24,13 @@ const getTvShowDetail = createServerFn({
 	.handler((ctx) =>
 		tvShowsByidApiRuntime.runPromise(getTVSeriesDetailProgram(ctx.data)),
 	);
+const getTvShowDeferred = createServerFn({
+	method: "GET",
+})
+	.validator((id: number) => id)
+	.handler((ctx) =>
+		tvShowsByidApiRuntime.runPromise(getTVSeriesDeferredDataProgram(ctx.data)),
+	);
 const getMoviesDetail = createServerFn({
 	method: "GET",
 })
@@ -26,17 +38,28 @@ const getMoviesDetail = createServerFn({
 	.handler((ctx) =>
 		moviesByidApiRuntime.runPromise(getMoviesDetailProgram(ctx.data)),
 	);
+
+const getMovieDeferred = createServerFn({
+	method: "GET",
+})
+	.validator((id: number) => id)
+	.handler((ctx) =>
+		moviesByidApiRuntime.runPromise(getMovieDeferredDataProgram(ctx.data)),
+	);
+
 export const Route = createFileRoute("/detail/$type/$id")({
 	component: RouteComponent,
 	loader: async ({ params: { type, id } }) => {
 		return Match.value(type).pipe(
 			Match.when("movies", async () => {
 				const data = await getMoviesDetail({ data: Number(id) });
-				return data;
+				const deferred = getMovieDeferred({ data: Number(id) });
+				return { data, deferred };
 			}),
 			Match.when("tvShows", async () => {
 				const data = await getTvShowDetail({ data: Number(id) });
-				return data;
+				const deferred = getTvShowDeferred({ data: Number(id) });
+				return { data, deferred };
 			}),
 			Match.orElse(() => {
 				throw redirect({ to: "/" });
@@ -46,8 +69,10 @@ export const Route = createFileRoute("/detail/$type/$id")({
 });
 
 function RouteComponent() {
-	const state = Route.useLoaderData();
-	if (!state) {
+	const { data, deferred } = Route.useLoaderData();
+	const { type } = Route.useParams();
+	const deferredData = use(deferred);
+	if (!data) {
 		return (
 			<div className="flex items-center justify-center min-h-screen text-white bg-black">
 				Content not found
@@ -60,21 +85,23 @@ function RouteComponent() {
 				<div className="flex flex-col gap-8 md:flex-row">
 					<div className="md:w-1/3">
 						<img
-							src={state.posterPath}
-							alt={state.title}
+							src={data.posterPath}
+							alt={data.title}
 							className="w-full h-auto rounded-lg shadow-lg"
 						/>
 					</div>
-					<div className="overflow-y-auto md:w-2/3 h-[80vh]">
-						<h1 className="mb-4 text-4xl font-bold text-white">
-							{state.title}
-						</h1>
-						<p className="mb-4 text-gray-400">{state.overview}</p>
+					<div className="overflow-y-auto md:w-2/3 h-[85vh]" ref={(node) => {
+            if(node) {
+              node.scrollTo({top: 0})
+            }
+          }}>
+						<h1 className="mb-4 text-4xl font-bold text-white">{data.title}</h1>
+						<p className="mb-4 text-gray-400">{data.overview}</p>
 						<p className="mb-4 text-gray-400">
-							Release Date: {state.releaseDate}
+							Release Date: {data.releaseDate}
 						</p>
 						<div className="flex mb-6 space-x-4 text-black">
-							<Link href={`/watch/${state.id}`}>
+							<Link href={`/watch/${data.id}`}>
 								<Button className="flex items-center space-x-2">
 									<Play className="w-4 h-4" />
 									<span>Play</span>
@@ -94,7 +121,7 @@ function RouteComponent() {
 								Categories
 							</h2>
 							<div className="flex flex-wrap gap-2">
-								{state.categories.map((category) => (
+								{data.categories.map((category) => (
 									<span
 										key={category.id}
 										className="px-3 py-1 text-sm text-white bg-gray-700 rounded-full"
@@ -104,6 +131,23 @@ function RouteComponent() {
 								))}
 							</div>
 						</div>
+						{deferredData ? (
+							<div className="mr-4">
+								<div className="mx-auto mb-8">
+									<CreditList creditList={deferredData.credits} />
+								</div>
+								<ContentGrid
+									title="Recommendations"
+									type={type as "movies" | "tvShows"}
+									contents={deferredData.recommendations}
+								/>
+								<ContentGrid
+									title="Similar"
+									type={type as "movies" | "tvShows"}
+									contents={deferredData.similar}
+								/>
+							</div>
+						) : null}
 					</div>
 				</div>
 			</div>

@@ -1,11 +1,11 @@
 import { Schema } from "effect"
-import { BaseContentSchema, BaseDetailSchema, posterSchema } from "./base"
+import { BaseContentSchema, BaseDetailSchema, imgSchema } from "./base"
 
 export const MovieSchema = Schema.transform(Schema.Struct({
   id: Schema.Number,
   title: Schema.String,
   overview: Schema.String,
-  poster_path: posterSchema,
+  poster_path: imgSchema,
   release_date: Schema.String
 }), BaseContentSchema, {
   encode: (to) => {
@@ -13,7 +13,7 @@ export const MovieSchema = Schema.transform(Schema.Struct({
       id: to.id,
       title: to.title,
       overview: to.overview,
-      poster_path: to.posterPath,
+      poster_path: to.posterPath ?? "",
       release_date: to.releaseDate
     }
   },
@@ -37,7 +37,7 @@ export const MovieDetailSchema = Schema.transform(Schema.Struct({
   id: Schema.Number,
   title: Schema.String,
   overview: Schema.String,
-  poster_path: posterSchema,
+  poster_path: imgSchema,
   release_date: Schema.String,
   genres: Schema.Array(Schema.Struct({
     id: Schema.Number,
@@ -50,7 +50,7 @@ export const MovieDetailSchema = Schema.transform(Schema.Struct({
       id: to.id,
       title: to.title,
       overview: to.overview,
-      poster_path: to.posterPath,
+      poster_path: to.posterPath ?? "",
       release_date: to.releaseDate,
       vote_average: to.voteScore,
       genres: to.categories,
