@@ -17,35 +17,34 @@ import { Match } from "effect";
 import { Play, Plus, ThumbsUp } from "lucide-react";
 import { use } from "react";
 
-const getTvShowDetail = createServerFn({
+const getDetail = createServerFn({
 	method: "GET",
 })
-	.validator((id: number) => id)
-	.handler((ctx) =>
-		tvShowsByidApiRuntime.runPromise(getTVSeriesDetailProgram(ctx.data)),
-	);
-const getTvShowDeferred = createServerFn({
+	.validator(({ id, type }: { id: number; type: "movies" | "tvShows" }) => ({
+		id,
+		type,
+	}))
+	.handler((ctx) => {
+		const { id, type } = ctx.data;
+		if (type === "movies") {
+			return moviesByidApiRuntime.runPromise(getMoviesDetailProgram(id));
+		}
+		return tvShowsByidApiRuntime.runPromise(getTVSeriesDetailProgram(id));
+	});
+const getDeferred = createServerFn({
 	method: "GET",
 })
-	.validator((id: number) => id)
-	.handler((ctx) =>
-		tvShowsByidApiRuntime.runPromise(getTVSeriesDeferredDataProgram(ctx.data)),
-	);
-const getMoviesDetail = createServerFn({
-	method: "GET",
-})
-	.validator((id: number) => id)
-	.handler((ctx) =>
-		moviesByidApiRuntime.runPromise(getMoviesDetailProgram(ctx.data)),
-	);
-
-const getMovieDeferred = createServerFn({
-	method: "GET",
-})
-	.validator((id: number) => id)
-	.handler((ctx) =>
-		moviesByidApiRuntime.runPromise(getMovieDeferredDataProgram(ctx.data)),
-	);
+	.validator(({ id, type }: { id: number; type: "movies" | "tvShows" }) => ({
+		id,
+		type,
+	}))
+	.handler((ctx) => {
+		const { id, type } = ctx.data;
+		if (type === "movies") {
+			return moviesByidApiRuntime.runPromise(getMovieDeferredDataProgram(id));
+		}
+		return tvShowsByidApiRuntime.runPromise(getTVSeriesDeferredDataProgram(id));
+	});
 
 export const Route = createFileRoute("/detail/$type/$id")({
 	component: RouteComponent,
@@ -53,13 +52,21 @@ export const Route = createFileRoute("/detail/$type/$id")({
 	loader: async ({ params: { type, id } }) => {
 		return Match.value(type).pipe(
 			Match.when("movies", async () => {
-				const data = await getMoviesDetail({ data: Number(id) });
-				const deferred = getMovieDeferred({ data: Number(id) });
+				const data = await getDetail({
+					data: { id: Number(id), type: "movies" },
+				});
+				const deferred = getDeferred({
+					data: { id: Number(id), type: "movies" },
+				});
 				return { data, deferred };
 			}),
 			Match.when("tvShows", async () => {
-				const data = await getTvShowDetail({ data: Number(id) });
-				const deferred = getTvShowDeferred({ data: Number(id) });
+				const data = await getDetail({
+					data: { id: Number(id), type: "tvShows" },
+				});
+				const deferred = getDeferred({
+					data: { id: Number(id), type: "movies" },
+				});
 				return { data, deferred };
 			}),
 			Match.orElse(() => {
