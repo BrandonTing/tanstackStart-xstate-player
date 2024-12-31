@@ -74,6 +74,7 @@ function RouteComponent() {
 			<h1 className="mb-8 text-4xl font-bold ">TV Shows</h1>
 			{airingToday ? (
 				<ContentGrid
+					type="tvShows"
 					title="Airing Today"
 					contents={airingToday.results}
 					limit={5}
@@ -81,16 +82,23 @@ function RouteComponent() {
 			) : null}
 			{onTheAirData ? (
 				<ContentGrid
+					type="tvShows"
 					title="On The Air"
 					contents={onTheAirData.results}
 					limit={5}
 				/>
 			) : null}
 			{popularData ? (
-				<ContentGrid title="Popular" contents={popularData.results} limit={5} />
+				<ContentGrid
+					type="tvShows"
+					title="Popular"
+					contents={popularData.results}
+					limit={5}
+				/>
 			) : null}
 			{topRatedData ? (
 				<ContentGrid
+					type="tvShows"
 					title="Top Rated"
 					contents={topRatedData.results}
 					limit={5}

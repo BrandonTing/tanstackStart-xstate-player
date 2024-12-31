@@ -69,7 +69,7 @@ export function HomeContentRow({ title, contents }: HomeContentRowProps) {
 				{contents.map((content) => (
 					<Link
 						key={content.id}
-						href={`/watch/${content.id}`}
+						to={`/detail/${title === "TV Shows" ? "tvShows" : "movies"}/${content.id}`}
 						className="flex-none"
 					>
 						<img

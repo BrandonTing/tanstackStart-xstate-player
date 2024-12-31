@@ -55,27 +55,26 @@
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
-  }
-}
-@layer utilities {
-  .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #888 #000;
   }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: #000;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 4px;
-    border: 2px solid #000;
-  }
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #000;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+  border: 2px solid #000;
+}

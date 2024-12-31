@@ -29,9 +29,11 @@ export function FeaturedMovie({
 								Play
 							</Button>
 						</Link>
-						<Button variant="outline" size="lg" className="text-black">
-							More Info
-						</Button>
+						<Link to={`/detail/movies/${id}`}>
+							<Button variant="outline" size="lg" className="text-black">
+								More Info
+							</Button>
+						</Link>
 					</div>
 				</div>
 			</div>

@@ -12,11 +12,16 @@ interface ContentGridProps {
 	title: string;
 	contents: DeepReadonly<Content[]>;
 	limit?: number;
+	type: "movies" | "tvShows";
 }
 
-export function ContentGrid({ title, contents, limit }: ContentGridProps) {
+export function ContentGrid({
+	title,
+	contents,
+	limit,
+	type,
+}: ContentGridProps) {
 	const displayedContents = limit ? contents.slice(0, limit) : contents;
-
 	return (
 		<div className="mb-8">
 			<h2 className="mb-4 text-2xl font-semibold ">{title}</h2>
@@ -24,7 +29,7 @@ export function ContentGrid({ title, contents, limit }: ContentGridProps) {
 				{displayedContents.map((content) => (
 					<Link
 						key={content.id}
-						href={`/watch/${content.id}`}
+						to={`/detail/${type}/${content.id}`}
 						className="group"
 					>
 						<div className="relative aspect-[2/3] overflow-hidden rounded-md">
@@ -34,7 +39,7 @@ export function ContentGrid({ title, contents, limit }: ContentGridProps) {
 								className="transition-transform duration-200 group-hover:scale-105"
 							/>
 						</div>
-						<h3 className="mt-2 text-sm font-medium  transition-colors group-hover:text-gray-300">
+						<h3 className="mt-2 text-sm font-medium transition-colors group-hover:text-gray-300">
 							{content.title}
 						</h3>
 						<p className="text-xs text-gray-400">

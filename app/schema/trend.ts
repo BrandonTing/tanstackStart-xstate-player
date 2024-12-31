@@ -1,5 +1,6 @@
 import { Schema } from "effect"
-import { MovieSchema, TVSchema } from "./base"
+import { TVSchema } from "./tvShows"
+import { MovieSchema } from "./movies"
 
 /** Schema **/
 export class Trend extends Schema.Class<Trend>("Trend")({

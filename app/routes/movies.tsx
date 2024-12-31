@@ -73,16 +73,23 @@ function RouteComponent() {
 			<h1 className="mb-8 text-4xl font-bold ">Movies</h1>
 			{nowPlaying ? (
 				<ContentGrid
+					type="movies"
 					title="Now Playing"
 					contents={nowPlaying.results}
 					limit={5}
 				/>
 			) : null}
 			{popularData ? (
-				<ContentGrid title="Popular" contents={popularData.results} limit={5} />
+				<ContentGrid
+					type="movies"
+					title="Popular"
+					contents={popularData.results}
+					limit={5}
+				/>
 			) : null}
 			{topRatedData ? (
 				<ContentGrid
+					type="movies"
 					title="Top Rated"
 					contents={topRatedData.results}
 					limit={5}
@@ -90,6 +97,7 @@ function RouteComponent() {
 			) : null}
 			{upcomingData ? (
 				<ContentGrid
+					type="movies"
 					title="Upcoming"
 					contents={upcomingData.results}
 					limit={5}
