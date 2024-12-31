@@ -7,13 +7,15 @@ import {
 } from "@/services/tvShowsApi";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { Console, Effect } from "effect";
+import { Chunk, Console, Effect, Sink, Stream } from "effect";
 import { use } from "react";
 const getTVShowsProgram = (type: TVShowsApiKeyType) => {
 	return Effect.gen(function* () {
 		const tvShowsApi = yield* TVShowsApi;
 		const list = yield* tvShowsApi[type];
-		return list;
+		const stream = Stream.fromIterable(list.results);
+		const castsChunk = yield* stream.pipe(Stream.run(Sink.take(5)));
+		return Chunk.toReadonlyArray(castsChunk);
 	}).pipe(
 		Effect.catchTags({
 			FetchError: (e) => {
@@ -76,33 +78,21 @@ function RouteComponent() {
 				<ContentGrid
 					type="tvShows"
 					title="Airing Today"
-					contents={airingToday.results}
-					limit={5}
+					contents={airingToday}
 				/>
 			) : null}
 			{onTheAirData ? (
 				<ContentGrid
 					type="tvShows"
 					title="On The Air"
-					contents={onTheAirData.results}
-					limit={5}
+					contents={onTheAirData}
 				/>
 			) : null}
 			{popularData ? (
-				<ContentGrid
-					type="tvShows"
-					title="Popular"
-					contents={popularData.results}
-					limit={5}
-				/>
+				<ContentGrid type="tvShows" title="Popular" contents={popularData} />
 			) : null}
 			{topRatedData ? (
-				<ContentGrid
-					type="tvShows"
-					title="Top Rated"
-					contents={topRatedData.results}
-					limit={5}
-				/>
+				<ContentGrid type="tvShows" title="Top Rated" contents={topRatedData} />
 			) : null}
 		</main>
 	);

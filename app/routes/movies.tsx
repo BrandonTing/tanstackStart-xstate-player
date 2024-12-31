@@ -7,14 +7,16 @@ import {
 } from "@/services/movieApi";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { Console, Effect } from "effect";
+import { Chunk, Console, Effect, Sink, Stream } from "effect";
 import { use } from "react";
 
 const getMoviesProgram = (type: MovieApiKeyType) => {
 	return Effect.gen(function* () {
 		const movieApi = yield* MoviesApi;
 		const list = yield* movieApi[type];
-		return list;
+		const stream = Stream.fromIterable(list.results);
+		const castsChunk = yield* stream.pipe(Stream.run(Sink.take(5)));
+		return Chunk.toReadonlyArray(castsChunk);
 	}).pipe(
 		Effect.catchTags({
 			FetchError: (e) => {
@@ -75,32 +77,28 @@ function RouteComponent() {
 				<ContentGrid
 					type="movies"
 					title="Now Playing"
-					contents={nowPlaying.results}
-					limit={5}
+					contents={nowPlaying}
 				/>
 			) : null}
 			{popularData ? (
 				<ContentGrid
 					type="movies"
 					title="Popular"
-					contents={popularData.results}
-					limit={5}
+					contents={popularData}
 				/>
 			) : null}
 			{topRatedData ? (
 				<ContentGrid
 					type="movies"
 					title="Top Rated"
-					contents={topRatedData.results}
-					limit={5}
+					contents={topRatedData}
 				/>
 			) : null}
 			{upcomingData ? (
 				<ContentGrid
 					type="movies"
 					title="Upcoming"
-					contents={upcomingData.results}
-					limit={5}
+					contents={upcomingData}
 				/>
 			) : null}
 		</main>

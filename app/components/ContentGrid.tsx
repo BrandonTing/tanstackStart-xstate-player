@@ -15,23 +15,17 @@ interface ContentGridProps {
 	type: "movies" | "tvShows";
 }
 
-export function ContentGrid({
-	title,
-	contents,
-	limit,
-	type,
-}: ContentGridProps) {
-	const displayedContents = limit ? contents.slice(0, limit) : contents;
+export function ContentGrid({ title, contents, type }: ContentGridProps) {
 	return (
 		<div className="mb-8">
 			<h2 className="mb-4 text-2xl font-semibold ">{title}</h2>
 			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-				{displayedContents.map((content) => (
+				{contents.map((content) => (
 					<Link
 						key={content.id}
 						to={`/detail/${type}/${content.id}`}
 						className="group"
-            preload="intent"
+						preload="intent"
 					>
 						<div className="relative aspect-[2/3] overflow-hidden rounded-md">
 							<img
