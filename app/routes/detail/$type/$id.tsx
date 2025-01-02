@@ -76,6 +76,12 @@ export const Route = createFileRoute("/detail/$type/$id")({
 	},
 });
 
+function resetScrollToTop(node: HTMLDivElement | null) {
+	if (node) {
+		node.scrollTo({ top: 0 });
+	}
+}
+
 function RouteComponent() {
 	const { data, deferred } = Route.useLoaderData();
 	const { type } = Route.useParams();
@@ -100,11 +106,7 @@ function RouteComponent() {
 					</div>
 					<div
 						className="overflow-y-auto md:w-2/3 h-[85vh]"
-						ref={(node) => {
-							if (node) {
-								node.scrollTo({ top: 0 });
-							}
-						}}
+						ref={resetScrollToTop}
 					>
 						<h1 className="mb-4 text-4xl font-bold text-white">{data.title}</h1>
 						<p className="mb-4 text-gray-400">{data.overview}</p>
