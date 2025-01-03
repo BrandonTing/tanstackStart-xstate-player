@@ -41,9 +41,7 @@ export function ContentGrid({ title, contents }: ContentGridProps) {
 						<h3 className="mt-2 text-sm font-medium transition-colors group-hover:text-gray-300">
 							{content.title}
 						</h3>
-						<p className="text-xs text-gray-400">
-							{new Date(content.releaseDate).getFullYear()}
-						</p>
+						<p className="text-xs text-gray-400">{content.releaseDate}</p>
 					</Link>
 				))}
 			</div>

@@ -70,7 +70,6 @@ export const Route = createFileRoute("/detail/$type/$id")({
 				return { data, deferred };
 			}),
 			Match.orElse(() => {
-				console.log(type);
 				throw redirect({ to: "/" });
 			}),
 		);
@@ -85,7 +84,6 @@ function resetScrollToTop(node: HTMLDivElement | null) {
 
 function RouteComponent() {
 	const { data, deferred } = Route.useLoaderData();
-	const { type } = Route.useParams();
 	const deferredData = use(deferred);
 	if (!data) {
 		return (
@@ -115,7 +113,12 @@ function RouteComponent() {
 							Release Date: {data.releaseDate}
 						</p>
 						<div className="flex mb-6 space-x-4 text-black">
-							<Link href={`/watch/${data.id}`}>
+							<Link
+								to={`/watch/${data.id}`}
+								search={{
+									title: data.title,
+								}}
+							>
 								<Button className="flex items-center space-x-2">
 									<Play className="w-4 h-4" />
 									<span>Play</span>

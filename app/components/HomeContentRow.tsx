@@ -53,10 +53,14 @@ export function HomeContentRow({ title, contents }: HomeContentRowProps) {
 				if (node) {
 					node.addEventListener("mouseenter", () => {
 						send({ type: "Start Listening" });
-					});
+					}, {
+            signal: abortController.signal
+          });
 					node.addEventListener("mouseleave", () => {
 						send({ type: "End" });
-					});
+					}, {
+            signal: abortController.signal
+          });
 				}
 				return () => {
 					abortController.abort();

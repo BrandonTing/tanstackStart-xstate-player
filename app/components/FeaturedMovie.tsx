@@ -24,7 +24,7 @@ export function FeaturedMovie({
 					<h1 className="mb-4 text-5xl font-bold ">{title}</h1>
 					<p className="max-w-xl mb-6 text-lg ">{description}</p>
 					<div className="space-x-4">
-						<Link href={`/watch/${id}`}>
+						<Link to={`/watch/${id}`} search={{ title }}>
 							<Button variant="default" size="lg">
 								Play
 							</Button>

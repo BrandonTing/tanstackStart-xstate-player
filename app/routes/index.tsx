@@ -1,19 +1,11 @@
 import { FeaturedMovie } from "@/components/FeaturedMovie";
 import { HomeContentRow } from "@/components/HomeContentRow";
 import type { Fail } from "@/lib/type";
-import { contentTypeSchema } from "@/schema/base";
 import { ResourceApi, resourceRuntime } from "@/services/resourceApi";
 // app/routes/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { Effect, Schema } from "effect";
-const mainRouteSearchParam = Schema.Struct({
-	contentType: Schema.optionalWith(contentTypeSchema, {
-		default: () => "tvShows",
-	}),
-});
-
-export type ContentType = typeof mainRouteSearchParam.Type.contentType;
+import { Effect } from "effect";
 
 const getTrendingContent = createServerFn({
 	method: "GET",
