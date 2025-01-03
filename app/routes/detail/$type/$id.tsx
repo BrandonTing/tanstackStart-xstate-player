@@ -70,6 +70,7 @@ export const Route = createFileRoute("/detail/$type/$id")({
 				return { data, deferred };
 			}),
 			Match.orElse(() => {
+				console.log(type);
 				throw redirect({ to: "/" });
 			}),
 		);
@@ -151,53 +152,14 @@ function RouteComponent() {
 								</div>
 								<ContentGrid
 									title="Recommendations"
-									type={type as "movies" | "tvShows"}
 									contents={deferredData.recommendations}
 								/>
-								<ContentGrid
-									title="Similar"
-									type={type as "movies" | "tvShows"}
-									contents={deferredData.similar}
-								/>
+								<ContentGrid title="Similar" contents={deferredData.similar} />
 							</div>
 						) : null}
 					</div>
 				</div>
 			</div>
-
-			{/* <div className="container px-4 mx-auto mb-8">
-				<ActorList actorIds={content.actors} />
-			</div>
-
-			<div className="w-full py-8 bg-zinc-900">
-				<div className="container px-4 mx-auto">
-					<MovieList
-						title={
-							contentType === "movies" ? "Related Movies" : "Related Shows"
-						}
-						movieIds={
-							contentType === "movies"
-								? "relatedMovies" in content
-									? content.relatedMovies
-									: []
-								: "relatedShows" in content
-									? content.relatedShows
-									: []
-						}
-						contentType={contentType}
-					/>
-				</div>
-			</div>
-
-			<div className="w-full py-8 bg-zinc-800">
-				<div className="container px-4 mx-auto">
-					<MovieList
-						title="Others Also Watched"
-						movieIds={content.othersWatched}
-						contentType={contentType}
-					/>
-				</div>
-			</div> */}
 		</main>
 	);
 }

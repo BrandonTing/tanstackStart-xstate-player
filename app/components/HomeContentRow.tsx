@@ -1,12 +1,14 @@
 import type { DeepReadonly } from "@/lib/type";
 import { wheelScrollMachine } from "@/machines/wheelScrollMachine";
+import type { ContentType } from "@/schema/base";
 import { Link } from "@tanstack/react-router";
 import { useMachine } from "@xstate/react";
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 interface Content {
 	id: number;
 	title: string;
 	posterPath: string;
+	type: ContentType;
 }
 
 interface HomeContentRowProps {
@@ -43,24 +45,24 @@ export function HomeContentRow({ title, contents }: HomeContentRowProps) {
 			},
 		}),
 	);
-	const mouseOverHandler = useCallback(() => {
-		(node: HTMLDivElement | null) => {
-			const abortController = new AbortController();
-			if (node) {
-				node.addEventListener("mouseenter", () => {
-					send({ type: "Start Listening" });
-				});
-				node.addEventListener("mouseleave", () => {
-					send({ type: "End" });
-				});
-			}
-			return () => {
-				abortController.abort();
-			};
-		};
-	}, [send]);
 	return (
-		<div className="mb-8" ref={mouseOverHandler}>
+		<div
+			className="mb-8"
+			ref={(node: HTMLDivElement | null) => {
+				const abortController = new AbortController();
+				if (node) {
+					node.addEventListener("mouseenter", () => {
+						send({ type: "Start Listening" });
+					});
+					node.addEventListener("mouseleave", () => {
+						send({ type: "End" });
+					});
+				}
+				return () => {
+					abortController.abort();
+				};
+			}}
+		>
 			<h2 className="mb-4 text-2xl font-semibold text-white">{title}</h2>
 			<div
 				className="flex pb-4 space-x-4 overflow-x-auto bg-black custom-scrollbar"
@@ -69,7 +71,7 @@ export function HomeContentRow({ title, contents }: HomeContentRowProps) {
 				{contents.map((content) => (
 					<Link
 						key={content.id}
-						to={`/detail/${title === "TV Shows" ? "tvShows" : "movies"}/${content.id}`}
+						to={`/detail/${content.type}/${content.id}`}
 						className="flex-none"
 						preload="intent"
 					>

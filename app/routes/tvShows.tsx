@@ -75,24 +75,16 @@ function RouteComponent() {
 		<main className="container px-4 pt-24 mx-auto">
 			<h1 className="mb-8 text-4xl font-bold ">TV Shows</h1>
 			{airingToday ? (
-				<ContentGrid
-					type="tvShows"
-					title="Airing Today"
-					contents={airingToday}
-				/>
+				<ContentGrid title="Airing Today" contents={airingToday} />
 			) : null}
 			{onTheAirData ? (
-				<ContentGrid
-					type="tvShows"
-					title="On The Air"
-					contents={onTheAirData}
-				/>
+				<ContentGrid title="On The Air" contents={onTheAirData} />
 			) : null}
 			{popularData ? (
-				<ContentGrid type="tvShows" title="Popular" contents={popularData} />
+				<ContentGrid title="Popular" contents={popularData} />
 			) : null}
 			{topRatedData ? (
-				<ContentGrid type="tvShows" title="Top Rated" contents={topRatedData} />
+				<ContentGrid title="Top Rated" contents={topRatedData} />
 			) : null}
 		</main>
 	);

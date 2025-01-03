@@ -1,4 +1,5 @@
 import type { DeepReadonly } from "@/lib/type";
+import type { ContentType } from "@/routes";
 import { Link } from "@tanstack/react-router";
 
 interface Content {
@@ -6,16 +7,19 @@ interface Content {
 	title: string;
 	posterPath: string;
 	releaseDate: string;
+	type: ContentType;
 }
 
 interface ContentGridProps {
 	title: string;
 	contents: DeepReadonly<Content[]>;
 	limit?: number;
-	type: "movies" | "tvShows";
 }
 
-export function ContentGrid({ title, contents, type }: ContentGridProps) {
+export function ContentGrid({ title, contents }: ContentGridProps) {
+	if (contents.length === 0) {
+		return null;
+	}
 	return (
 		<div className="mb-8">
 			<h2 className="mb-4 text-2xl font-semibold ">{title}</h2>
@@ -23,7 +27,7 @@ export function ContentGrid({ title, contents, type }: ContentGridProps) {
 				{contents.map((content) => (
 					<Link
 						key={content.id}
-						to={`/detail/${type}/${content.id}`}
+						to={`/detail/${content.type}/${content.id}`}
 						className="group"
 						preload="intent"
 					>
