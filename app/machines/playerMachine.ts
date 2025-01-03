@@ -45,6 +45,8 @@ export const playerMachine = setup({
 			| { type: "Time.update"; currentTime: number }
 			| { type: "Time.skipBackward" }
 			| { type: "Time.skipForward" }
+			| { type: "Time.skipBackward.keyboard" }
+			| { type: "Time.skipForward.keyboard" }
 			| { type: "Time.seek"; time: number }
 			| { type: "Volume.Toggle" }
 			| { type: "Volume.Set"; volume: number }
@@ -120,7 +122,7 @@ export const playerMachine = setup({
 			},
 		),
 		"Set animation timestamp to now": assign({
-			animationActionTimestamp: Date.now(),
+			animationActionTimestamp: () => Date.now(),
 		}),
 	},
 }).createMachine({
@@ -263,6 +265,20 @@ export const playerMachine = setup({
 										},
 									},
 								},
+								"Time.skipBackward.keyboard": {
+									actions: [
+										{
+											type: "Seek",
+											params: ({ context }) => {
+												return { time: Math.max(context.currentTime - 10, 0) };
+											},
+										},
+										raise({
+											type: "animate",
+											animation: "backward",
+										}),
+									],
+								},
 								"Time.skipForward": {
 									actions: {
 										type: "Seek",
@@ -275,6 +291,25 @@ export const playerMachine = setup({
 											};
 										},
 									},
+								},
+								"Time.skipForward.keyboard": {
+									actions: [
+										{
+											type: "Seek",
+											params: ({ context }) => {
+												return {
+													time: Math.min(
+														context.currentTime + 10,
+														context.metadata.duration,
+													),
+												};
+											},
+										},
+										raise({
+											type: "animate",
+											animation: "forward",
+										}),
+									],
 								},
 								"Volume.Toggle": {
 									actions: assign(({ context }) => {

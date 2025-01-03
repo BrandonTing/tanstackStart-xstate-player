@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 import { playerMachine } from "@/machines/playerMachine";
 import { useMachine } from "@xstate/react";
 import {
@@ -35,15 +36,6 @@ export function Player({ src }: PlayerProps) {
           player.attach(node);
           send({ type: "Idle.setPlayer", player: player, media: node });
         });
-        node.addEventListener(
-          "click",
-          () => {
-            send({ type: "Video.Click" });
-          },
-          {
-            signal: abortController.signal,
-          },
-        );
 
         return () => {
           send({ type: "Destroy Player" });
@@ -75,6 +67,16 @@ export function Player({ src }: PlayerProps) {
             signal: abortController.signal,
           },
         );
+        node.addEventListener(
+          "click",
+          () => {
+            send({ type: "Video.Click" });
+          },
+          {
+            signal: abortController.signal,
+          },
+        );
+
         return () => {
           abortController.abort();
         };
@@ -138,7 +140,30 @@ export function Player({ src }: PlayerProps) {
     [send],
   );
   return (
-    <div className="relative text-black" ref={containerRefCallbacks}>
+    <div className="relative text-black" ref={containerRefCallbacks} tabIndex={-1} onKeyDown={(e) => {
+      switch (e.key) {
+        case "ArrowLeft": {
+          send({
+            type: "Time.skipBackward.keyboard",
+          });
+
+          break;
+        }
+        case "ArrowRight": {
+          send({
+            type: "Time.skipForward.keyboard",
+          });
+
+          break;
+        }
+        default: {
+          // Stop processing unknown events.
+          return;
+        }
+      }
+
+      e.preventDefault();
+    }}>
       <video
         ref={refCallbacks}
         className="w-full"
@@ -237,10 +262,11 @@ export function Player({ src }: PlayerProps) {
               type: "play-state-animation.end",
             });
           }}
-            className="flex items-center justify-center h-full px-16 [&>*]:animate-ping [&>*]:repeat-1">
+            className={cn("flex items-center  h-full px-16 [&>*]:animate-ping [&>*]:repeat-1", snapshot.hasTag("Animate backward") ? "justify-start" : snapshot.hasTag("Animate forward") ? "justify-end" : "justify-center")}>
             {snapshot.hasTag("Animate playing state") ? <Play className="w-16 h-16 text-white " />
               : snapshot.hasTag("Animate paused state") ? <Pause className="w-16 h-16 text-white " />
-                : null}
+                : snapshot.hasTag("Animate backward") ? <SkipBack className="w-16 h-16 text-white " />
+                  : snapshot.hasTag("Animate forward") ? <SkipForward className="w-16 h-16 text-white " /> : null}
           </div>
         </div>
       ) : null}
