@@ -1,5 +1,5 @@
 import type shaka from "shaka-player";
-import { assign, enqueueActions, fromPromise, setup } from "xstate";
+import { assign, enqueueActions, fromPromise, raise, setup } from "xstate";
 export const playerMachine = setup({
 	types: {
 		context: {} as {
@@ -12,6 +12,7 @@ export const playerMachine = setup({
 			currentTime: number;
 			volume: number;
 			isMuted: boolean;
+			animationActionTimestamp: number;
 		},
 		events: {} as
 			| {
@@ -25,6 +26,9 @@ export const playerMachine = setup({
 			  }
 			| {
 					type: "Destroy Player";
+			  }
+			| {
+					type: "Video.Click";
 			  }
 			| {
 					type: "Loaded.Play";
@@ -43,8 +47,19 @@ export const playerMachine = setup({
 			| { type: "Time.skipForward" }
 			| { type: "Time.seek"; time: number }
 			| { type: "Volume.Toggle" }
-			| { type: "Volume.Set"; volume: number },
-		tags: {} as "Show Control",
+			| { type: "Volume.Set"; volume: number }
+			| { type: "play-state-animation.end" }
+			| {
+					type: "animate";
+					animation: "playing" | "paused" | "backward" | "forward";
+			  },
+		tags: {} as
+			| "Show Control"
+			| "Animate action"
+			| "Animate playing state"
+			| "Animate paused state"
+			| "Animate backward"
+			| "Animate forward",
 	},
 	actors: {
 		loadSrcActor: fromPromise(
@@ -104,6 +119,9 @@ export const playerMachine = setup({
 				};
 			},
 		),
+		"Set animation timestamp to now": assign({
+			animationActionTimestamp: Date.now(),
+		}),
 	},
 }).createMachine({
 	context: {
@@ -116,6 +134,7 @@ export const playerMachine = setup({
 		currentTime: 0,
 		volume: 1,
 		isMuted: false,
+		animationActionTimestamp: 0, // used on animation key to ensure rerendeering
 	},
 	initial: "Idle",
 	states: {
@@ -156,105 +175,169 @@ export const playerMachine = setup({
 					},
 				},
 				Loaded: {
-					initial: "play",
-					entry: "Get Metadata",
+					type: "parallel",
 					states: {
-						play: {
-							entry: "Play the video",
-							on: {
-								"Loaded.Pause": {
-									target: "paused",
+						Controls: {
+							initial: "play",
+							entry: "Get Metadata",
+							states: {
+								play: {
+									entry: "Play the video",
+									on: {
+										"Loaded.Pause": {
+											target: "paused",
+										},
+										"Time.update": {
+											actions: {
+												type: "Update Current Time",
+												params: ({ event }) => {
+													return {
+														time: event.currentTime,
+													};
+												},
+											},
+										},
+										"Video.Click": {
+											target: "paused",
+											actions: raise({
+												type: "animate",
+												animation: "paused",
+											}),
+										},
+									},
+									initial: "Idle",
+									states: {
+										Idle: {
+											on: {
+												"Play.Hover": {
+													target: "Hovering",
+												},
+											},
+										},
+										Hovering: {
+											after: {
+												2000: {
+													target: "Idle",
+												},
+											},
+											tags: ["Show Control"],
+											on: {
+												"Play.HoverEnd": {
+													target: "Idle",
+												},
+											},
+										},
+									},
 								},
-								"Time.update": {
+								paused: {
+									entry: "Pause the video",
+									tags: ["Show Control"],
+									on: {
+										"Loaded.Play": {
+											target: "play",
+										},
+										"Video.Click": {
+											target: "play",
+											actions: raise({
+												type: "animate",
+												animation: "playing",
+											}),
+										},
+									},
+								},
+							},
+							on: {
+								"Time.seek": {
 									actions: {
-										type: "Update Current Time",
+										type: "Seek",
+										params: ({ event }) => {
+											return { time: event.time };
+										},
+									},
+								},
+								"Time.skipBackward": {
+									actions: {
+										type: "Seek",
+										params: ({ context }) => {
+											return { time: Math.max(context.currentTime - 10, 0) };
+										},
+									},
+								},
+								"Time.skipForward": {
+									actions: {
+										type: "Seek",
+										params: ({ context }) => {
+											return {
+												time: Math.min(
+													context.currentTime + 10,
+													context.metadata.duration,
+												),
+											};
+										},
+									},
+								},
+								"Volume.Toggle": {
+									actions: assign(({ context }) => {
+										return {
+											isMuted: !context.isMuted,
+										};
+									}),
+								},
+								"Volume.Set": {
+									actions: {
+										type: "Set Volume",
 										params: ({ event }) => {
 											return {
-												time: event.currentTime,
+												target: event.volume,
 											};
 										},
 									},
 								},
 							},
+						},
+						Animation: {
 							initial: "Idle",
 							states: {
-								Idle: {
-									on: {
-										"Play.Hover": {
-											target: "Hovering",
-										},
-									},
+								Idle: {},
+								"Animating playing state": {
+									tags: ["Animate action", "Animate playing state"],
 								},
-								Hovering: {
-									after: {
-										2000: {
-											target: "Idle",
-										},
-									},
-									tags: ["Show Control"],
-									on: {
-										"Play.HoverEnd": {
-											target: "Idle",
-										},
-									},
+								"Animating paused state": {
+									tags: ["Animate action", "Animate paused state"],
+								},
+								"Animating backward": {
+									tags: ["Animate action", "Animate backward"],
+								},
+								"Animating forward": {
+									tags: ["Animate action", "Animate forward"],
 								},
 							},
-						},
-						paused: {
-							entry: "Pause the video",
-							tags: ["Show Control"],
 							on: {
-								"Loaded.Play": {
-									target: "play",
+								"play-state-animation.end": {
+									target: ".Idle",
 								},
-							},
-						},
-					},
-					on: {
-						"Time.seek": {
-							actions: {
-								type: "Seek",
-								params: ({ event }) => {
-									return { time: event.time };
-								},
-							},
-						},
-						"Time.skipBackward": {
-							actions: {
-								type: "Seek",
-								params: ({ context }) => {
-									return { time: Math.max(context.currentTime - 10, 0) };
-								},
-							},
-						},
-						"Time.skipForward": {
-							actions: {
-								type: "Seek",
-								params: ({ context }) => {
-									return {
-										time: Math.min(
-											context.currentTime + 10,
-											context.metadata.duration,
-										),
-									};
-								},
-							},
-						},
-						"Volume.Toggle": {
-							actions: assign(({ context }) => {
-								return {
-									isMuted: !context.isMuted,
-								};
-							}),
-						},
-						"Volume.Set": {
-							actions: {
-								type: "Set Volume",
-								params: ({ event }) => {
-									return {
-										target: event.volume,
-									};
-								},
+								animate: [
+									{
+										guard: ({ event }) => event.animation === "playing",
+										target: ".Animating playing state",
+										actions: "Set animation timestamp to now",
+									},
+									{
+										guard: ({ event }) => event.animation === "paused",
+										target: ".Animating paused state",
+										actions: "Set animation timestamp to now",
+									},
+									{
+										guard: ({ event }) => event.animation === "backward",
+										target: ".Animating backward",
+										actions: "Set animation timestamp to now",
+									},
+									{
+										guard: ({ event }) => event.animation === "forward",
+										target: ".Animating forward",
+										actions: "Set animation timestamp to now",
+									},
+								],
 							},
 						},
 					},
