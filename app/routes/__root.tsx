@@ -5,15 +5,12 @@ import css from "@/index.css?url";
 import {
 	Outlet,
 	ScrollRestoration,
-	createRootRouteWithContext,
+	createRootRoute,
 } from "@tanstack/react-router";
 import { Meta, Scripts } from "@tanstack/start";
 import type { ReactNode } from "react";
-import type { QueryClient } from "@tanstack/react-query";
 
-export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient;
-}>()({
+export const Route = createRootRoute({
 	head: () => ({
 		meta: [
 			{
