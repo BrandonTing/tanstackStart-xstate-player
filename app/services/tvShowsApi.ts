@@ -6,18 +6,11 @@ import {
 	decodeTVShowsDetail,
 	decodeTVShowsList,
 } from "@/schema/tvShows";
-import {
-	Chunk,
-	Console,
-	Effect,
-	ManagedRuntime,
-	Schema,
-	Sink,
-	Stream,
-} from "effect";
+import { Chunk, Effect, ManagedRuntime, Schema, Sink, Stream } from "effect";
 import type { ConfigError } from "effect/ConfigError";
 import type { ParseError } from "effect/ParseResult";
 import { GetResource, GetResourceLayer } from "./getResource";
+import { commonErrorHandling } from "./util";
 
 const keySchema = Schema.Literal(
 	"getAiringToday",
@@ -134,22 +127,7 @@ export const getTVSeriesDetailProgram = (id: number) => {
 		const tvShowsByIdApi = yield* TVShowsByIdApi;
 		const detail = yield* tvShowsByIdApi.getDetail(id);
 		return detail;
-	}).pipe(
-		Effect.catchTags({
-			FetchError: (e) => {
-				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			JsonError: (e) => {
-				Effect.runSync(Console.error(`Json error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			ParseError: (e) => {
-				Effect.runSync(Console.error(`Parse error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-		}),
-	);
+	}).pipe(commonErrorHandling);
 };
 
 export const getTVSeriesDeferredDataProgram = (id: number) => {
@@ -159,22 +137,7 @@ export const getTVSeriesDeferredDataProgram = (id: number) => {
 		const recommendations = yield* tvShowsByIdApi.getRecommendations(id);
 		const similar = yield* tvShowsByIdApi.getSimilar(id);
 		return { credits, recommendations, similar };
-	}).pipe(
-		Effect.catchTags({
-			FetchError: (e) => {
-				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			JsonError: (e) => {
-				Effect.runSync(Console.error(`Json error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			ParseError: (e) => {
-				Effect.runSync(Console.error(`Parse error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-		}),
-	);
+	}).pipe(commonErrorHandling);
 };
 
 export const getTVSeasonDetailProgram = (
@@ -188,20 +151,5 @@ export const getTVSeasonDetailProgram = (
 			seasonNumber,
 		);
 		return detail;
-	}).pipe(
-		Effect.catchTags({
-			FetchError: (e) => {
-				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			JsonError: (e) => {
-				Effect.runSync(Console.error(`Json error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			ParseError: (e) => {
-				Effect.runSync(Console.error(`Parse error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-		}),
-	);
+	}).pipe(commonErrorHandling);
 };

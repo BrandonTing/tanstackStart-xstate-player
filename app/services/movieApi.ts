@@ -5,18 +5,11 @@ import {
 	decodeMovieDetail,
 	decodeMovieList,
 } from "@/schema/movies";
-import {
-	Chunk,
-	Console,
-	Effect,
-	ManagedRuntime,
-	Schema,
-	Sink,
-	Stream,
-} from "effect";
+import { Chunk, Effect, ManagedRuntime, Schema, Sink, Stream } from "effect";
 import type { ConfigError } from "effect/ConfigError";
 import type { ParseError } from "effect/ParseResult";
 import { GetResource, GetResourceLayer } from "./getResource";
+import { commonErrorHandling } from "./util";
 
 const keySchema = Schema.Literal(
 	"getNowPlaying",
@@ -123,22 +116,7 @@ export const getMoviesDetailProgram = (id: number) => {
 		const moviesByIdApi = yield* MoviesByIdApi;
 		const detail = yield* moviesByIdApi.getMovieDetail(id);
 		return detail;
-	}).pipe(
-		Effect.catchTags({
-			FetchError: (e) => {
-				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			JsonError: (e) => {
-				Effect.runSync(Console.error(`Json error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			ParseError: (e) => {
-				Effect.runSync(Console.error(`Parse error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-		}),
-	);
+	}).pipe(commonErrorHandling);
 };
 
 export const getMovieDeferredDataProgram = (id: number) => {
@@ -148,20 +126,5 @@ export const getMovieDeferredDataProgram = (id: number) => {
 		const recommendations = yield* moviesByIdApi.getRecommendations(id);
 		const similar = yield* moviesByIdApi.getSimilar(id);
 		return { credits, recommendations, similar };
-	}).pipe(
-		Effect.catchTags({
-			FetchError: (e) => {
-				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			JsonError: (e) => {
-				Effect.runSync(Console.error(`Json error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-			ParseError: (e) => {
-				Effect.runSync(Console.error(`Parse error: ${e.message}`));
-				return Effect.succeed(null);
-			},
-		}),
-	);
+	}).pipe(commonErrorHandling);
 };
