@@ -1,4 +1,3 @@
-import type { FetchError, JsonError } from "@/errors/error";
 import { decodeCreditList } from "@/schema/base";
 import {
 	type MovieList,
@@ -6,10 +5,8 @@ import {
 	decodeMovieList,
 } from "@/schema/movies";
 import { Chunk, Effect, ManagedRuntime, Schema, Sink, Stream } from "effect";
-import type { ConfigError } from "effect/ConfigError";
-import type { ParseError } from "effect/ParseResult";
 import { GetResource, GetResourceLayer } from "./getResource";
-import { commonErrorHandling } from "./util";
+import { type ResourceError, resourceErrorHandling } from "./util";
 
 const keySchema = Schema.Literal(
 	"getNowPlaying",
@@ -44,11 +41,7 @@ const make = {
 	}).pipe(Effect.provide(GetResourceLayer)),
 } satisfies Record<
 	MovieApiKeyType,
-	Effect.Effect<
-		MovieList,
-		ParseError | FetchError | JsonError | ConfigError,
-		never
-	>
+	Effect.Effect<MovieList, ResourceError, never>
 >;
 export class MoviesApi extends Effect.Service<MoviesApi>()("MoviesApi", {
 	succeed: make,
@@ -116,7 +109,7 @@ export const getMoviesDetailProgram = (id: number) => {
 		const moviesByIdApi = yield* MoviesByIdApi;
 		const detail = yield* moviesByIdApi.getMovieDetail(id);
 		return detail;
-	}).pipe(commonErrorHandling);
+	}).pipe(resourceErrorHandling);
 };
 
 export const getMovieDeferredDataProgram = (id: number) => {
@@ -126,5 +119,5 @@ export const getMovieDeferredDataProgram = (id: number) => {
 		const recommendations = yield* moviesByIdApi.getRecommendations(id);
 		const similar = yield* moviesByIdApi.getSimilar(id);
 		return { credits, recommendations, similar };
-	}).pipe(commonErrorHandling);
+	}).pipe(resourceErrorHandling);
 };

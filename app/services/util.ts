@@ -3,8 +3,10 @@ import { Console, Effect } from "effect";
 import type { ConfigError } from "effect/ConfigError";
 import type { ParseError } from "effect/ParseResult";
 
-export const commonErrorHandling = Effect.catchTags<
-	FetchError | JsonError | ParseError | ConfigError,
+export type ResourceError = ParseError | FetchError | JsonError | ConfigError;
+
+export const resourceErrorHandling = Effect.catchTags<
+	ResourceError,
 	{
 		FetchError: (e: FetchError) => Effect.Effect<null, never>;
 		JsonError: (e: JsonError) => Effect.Effect<null, never>;

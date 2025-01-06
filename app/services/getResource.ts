@@ -2,10 +2,11 @@ import { Context, Effect, Layer } from "effect";
 import type { ConfigError } from "effect/ConfigError";
 import { FetchError, JsonError } from "../errors/error";
 import { GetResourceEndpoint } from "./buildResourceEndpoint";
+import type { ResourceError } from "./util";
 
 export class GetResource extends Context.Tag("GetResource")<
   GetResource,
-  (url: string) => Effect.Effect<unknown, JsonError | FetchError | ConfigError, never>
+  (url: string) => Effect.Effect<unknown, ResourceError, never>
 >() {
   static readonly Live = Layer.succeed(
     this,

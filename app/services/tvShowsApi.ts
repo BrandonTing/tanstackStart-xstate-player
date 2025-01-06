@@ -1,4 +1,3 @@
-import type { FetchError, JsonError } from "@/errors/error";
 import { decodeCreditList } from "@/schema/base";
 import {
 	type TVShowsList,
@@ -7,10 +6,8 @@ import {
 	decodeTVShowsList,
 } from "@/schema/tvShows";
 import { Chunk, Effect, ManagedRuntime, Schema, Sink, Stream } from "effect";
-import type { ConfigError } from "effect/ConfigError";
-import type { ParseError } from "effect/ParseResult";
 import { GetResource, GetResourceLayer } from "./getResource";
-import { commonErrorHandling } from "./util";
+import { type ResourceError, resourceErrorHandling } from "./util";
 
 const keySchema = Schema.Literal(
 	"getAiringToday",
@@ -43,11 +40,7 @@ const make = {
 	}).pipe(Effect.provide(GetResourceLayer)),
 } satisfies Record<
 	TVShowsApiKeyType,
-	Effect.Effect<
-		TVShowsList,
-		ParseError | FetchError | JsonError | ConfigError,
-		never
-	>
+	Effect.Effect<TVShowsList, ResourceError, never>
 >;
 export class TVShowsApi extends Effect.Service<TVShowsApi>()("TVShowsApi", {
 	succeed: make,
@@ -127,7 +120,7 @@ export const getTVSeriesDetailProgram = (id: number) => {
 		const tvShowsByIdApi = yield* TVShowsByIdApi;
 		const detail = yield* tvShowsByIdApi.getDetail(id);
 		return detail;
-	}).pipe(commonErrorHandling);
+	}).pipe(resourceErrorHandling);
 };
 
 export const getTVSeriesDeferredDataProgram = (id: number) => {
@@ -137,7 +130,7 @@ export const getTVSeriesDeferredDataProgram = (id: number) => {
 		const recommendations = yield* tvShowsByIdApi.getRecommendations(id);
 		const similar = yield* tvShowsByIdApi.getSimilar(id);
 		return { credits, recommendations, similar };
-	}).pipe(commonErrorHandling);
+	}).pipe(resourceErrorHandling);
 };
 
 export const getTVSeasonDetailProgram = (
@@ -151,5 +144,5 @@ export const getTVSeasonDetailProgram = (
 			seasonNumber,
 		);
 		return detail;
-	}).pipe(commonErrorHandling);
+	}).pipe(resourceErrorHandling);
 };
