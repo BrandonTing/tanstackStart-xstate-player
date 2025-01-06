@@ -2,6 +2,7 @@ import type { FetchError, JsonError } from "@/errors/error";
 import { decodeCreditList } from "@/schema/base";
 import {
 	type TVShowsList,
+	decodeSeasonDetail,
 	decodeTVShowsDetail,
 	decodeTVShowsList,
 } from "@/schema/tvShows";
@@ -105,6 +106,16 @@ const makeTVShowsByIdApi = {
 			return Chunk.toReadonlyArray(castsChunk);
 		}).pipe(Effect.provide(GetResourceLayer));
 	},
+	getSeasonDetail: (seriesId: number, seasonNumber: number) => {
+		return Effect.gen(function* () {
+			const getResource = yield* GetResource;
+			const detail = yield* getResource(
+				`tv/${seriesId}/season/${seasonNumber}?language=en-US`,
+			);
+			const seasons = yield* decodeSeasonDetail(detail);
+			return seasons;
+		}).pipe(Effect.provide(GetResourceLayer));
+	},
 };
 
 export class TVShowsByIdApi extends Effect.Service<TVShowsByIdApi>()(
@@ -148,6 +159,35 @@ export const getTVSeriesDeferredDataProgram = (id: number) => {
 		const recommendations = yield* tvShowsByIdApi.getRecommendations(id);
 		const similar = yield* tvShowsByIdApi.getSimilar(id);
 		return { credits, recommendations, similar };
+	}).pipe(
+		Effect.catchTags({
+			FetchError: (e) => {
+				Effect.runSync(Console.error(`Fetch error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			JsonError: (e) => {
+				Effect.runSync(Console.error(`Json error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+			ParseError: (e) => {
+				Effect.runSync(Console.error(`Parse error: ${e.message}`));
+				return Effect.succeed(null);
+			},
+		}),
+	);
+};
+
+export const getTVSeasonDetailProgram = (
+	seriesId: number,
+	seasonNumber: number,
+) => {
+	return Effect.gen(function* () {
+		const tvShowsByIdApi = yield* TVShowsByIdApi;
+		const detail = yield* tvShowsByIdApi.getSeasonDetail(
+			seriesId,
+			seasonNumber,
+		);
+		return detail;
 	}).pipe(
 		Effect.catchTags({
 			FetchError: (e) => {

@@ -61,6 +61,7 @@ export const TVShowDetailSchema = Schema.transform(
 				overview: Schema.String,
 				air_date: Schema.NullOr(Schema.String),
 				vote_average: Schema.Number,
+				season_number: Schema.Number,
 			}),
 		),
 	}),
@@ -81,6 +82,7 @@ export const TVShowDetailSchema = Schema.transform(
 						overview: season.overview,
 						air_date: season.releaseDate,
 						vote_average: season.voteScore,
+						season_number: season.seasonNumber,
 					};
 				}),
 				genres: to.categories,
@@ -100,6 +102,7 @@ export const TVShowDetailSchema = Schema.transform(
 						overview: season.overview,
 						releaseDate: season.air_date ?? "TBD",
 						voteScore: season.vote_average,
+						seasonNumber: season.season_number,
 					};
 				}),
 				categories: from.genres,
@@ -110,3 +113,59 @@ export const TVShowDetailSchema = Schema.transform(
 );
 
 export const decodeTVShowsDetail = Schema.decodeUnknown(TVShowDetailSchema);
+
+const seasonDetailSchema = Schema.transform(
+	Schema.Struct({
+		episodes: Schema.Array(
+			Schema.Struct({
+				air_date: Schema.String,
+				episode_number: Schema.Number,
+				id: Schema.Number,
+				name: Schema.String,
+				overview: Schema.String,
+				still_path: imgSchema,
+			}),
+		),
+	}),
+	Schema.Array(
+		Schema.Struct({
+			airDate: Schema.String,
+			episodeNumber: Schema.Number,
+			id: Schema.Number,
+			name: Schema.String,
+			overview: Schema.String,
+			posterPath: imgSchema,
+		}),
+	),
+	{
+		strict: false,
+		encode: (to) => {
+			return {
+				episodes: to.map(({ id, name, overview, ...toEpisode }) => {
+					return {
+						air_date: toEpisode.airDate,
+						episode_number: toEpisode.episodeNumber,
+						still_path: toEpisode.posterPath,
+						id,
+						name,
+						overview,
+					};
+				}),
+			};
+		},
+		decode: (from) => {
+			return from.episodes.map(({ name, overview, id, ...fromEpisode }) => {
+				return {
+					name,
+					overview,
+					id,
+					airDate: fromEpisode.air_date,
+					episodeNumber: fromEpisode.episode_number,
+					posterPath: fromEpisode.still_path,
+				};
+			});
+		},
+	},
+);
+
+export const decodeSeasonDetail = Schema.decodeUnknown(seasonDetailSchema);

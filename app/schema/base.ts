@@ -25,7 +25,15 @@ export const BaseContentSchema = Schema.Struct({
 	releaseDate: Schema.String,
 	type: contentTypeSchema,
 });
-
+const seasonSchema = Schema.Struct({
+	id: Schema.Number,
+	title: Schema.String,
+	overview: Schema.String,
+	releaseDate: Schema.String,
+	voteScore: Schema.Number,
+	seasonNumber: Schema.Number,
+});
+export type SeasonType = typeof seasonSchema.Type;
 export const BaseDetailSchema = Schema.Struct({
 	id: Schema.Number,
 	title: Schema.String,
@@ -39,15 +47,7 @@ export const BaseDetailSchema = Schema.Struct({
 		}),
 	),
 	voteScore: Schema.Number,
-	seasons: Schema.Array(
-		Schema.Struct({
-			id: Schema.Number,
-			title: Schema.String,
-			overview: Schema.String,
-			releaseDate: Schema.String,
-			voteScore: Schema.Number,
-		}),
-	),
+	seasons: Schema.Array(seasonSchema),
 });
 
 const BaseCreditSchema = Schema.transform(
