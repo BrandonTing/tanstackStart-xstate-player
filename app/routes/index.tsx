@@ -1,8 +1,8 @@
 import { FeaturedMovie } from "@/components/FeaturedMovie";
 import { HomeContentRow } from "@/components/HomeContentRow";
-import type { Fail } from "@/lib/type";
 import { ResourceApi, resourceRuntime } from "@/services/resourceApi";
-import { queryOptions, useSuspenseQueries } from "@tanstack/react-query";
+import { resourceErrorHandling } from "@/services/util";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 // app/routes/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
@@ -17,30 +17,10 @@ const getTrendingContent = createServerFn({
       const { trendingMovies, trendingTvShows } =
         yield* resourceApi.getTrending;
       return {
-        success: true as true,
         tvShows: trendingTvShows,
         movies: trendingMovies,
       };
-    }).pipe(
-      Effect.catchTags({
-        FetchError: (e) =>
-          Effect.succeed({
-            success: false,
-            message: `Fetch error: ${e.message}`,
-          } as Fail),
-        JsonError: (e) =>
-          Effect.succeed({
-            success: false,
-            message: `Json error: ${e.message}`,
-          } as Fail),
-        ParseError: (e) => {
-          return Effect.succeed({
-            success: false,
-            message: `Parse error: ${e.message}`,
-          } as Fail);
-        },
-      }),
-    ),
+    }).pipe(resourceErrorHandling),
   );
 });
 
@@ -60,12 +40,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const [{ data }] = useSuspenseQueries({
-    queries: [trendingQueryOptions()],
-  });
-
-  if (!data.success) {
-    return <p className="pt-20 ">{data.message}</p>;
+  const { data, isFetching } = useQuery(trendingQueryOptions());
+  if (isFetching) {
+    return <p className="pt-20 ">Loading...</p>;
+  }
+  if (!data) {
+    return <p className="pt-20 ">Failed to fetch trending info</p>;
   }
   const { movies, tvShows } = data;
   const featuredMovie = movies.results[0];
