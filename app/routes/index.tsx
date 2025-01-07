@@ -1,6 +1,5 @@
 import { FeaturedMovie } from "@/components/FeaturedMovie";
 import { HomeContentRow } from "@/components/HomeContentRow";
-import { getClientEnvProgram } from "@/services/clientEnv";
 import { ResourceApi, resourceRuntime } from "@/services/resourceApi";
 import { resourceErrorHandling } from "@/services/util";
 import { queryOptions, useQuery } from "@tanstack/react-query";
@@ -37,12 +36,10 @@ export const Route = createFileRoute("/")({
   component: Home,
   loader: ({ context }) => {
     context.queryClient.prefetchQuery(trendingQueryOptions())
-    return Effect.runSync(getClientEnvProgram)
   },
 });
 
 function Home() {
-  const state = Route.useLoaderData()
   const { data, isFetching } = useQuery(trendingQueryOptions());
   if (isFetching) {
     return <p className="pt-20 ">Loading...</p>;
