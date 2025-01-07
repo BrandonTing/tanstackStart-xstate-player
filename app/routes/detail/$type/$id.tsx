@@ -142,7 +142,7 @@ function RouteComponent() {
             </p>
             <div className="flex mb-6 space-x-4 text-black">
               <Link
-                to={`/watch/${data.id}`}
+                to={`/video/${data.id}`}
                 search={{
                   title: data.title,
                 }}
