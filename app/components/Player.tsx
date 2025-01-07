@@ -142,6 +142,14 @@ export function Player({ src }: PlayerProps) {
   return (
     <div className="relative text-black" ref={containerRefCallbacks} tabIndex={-1} onKeyDown={(e) => {
       switch (e.key) {
+        case " ":
+        case "k": {
+          send({
+            type: "Video.Click"
+          })
+          break;
+        }
+
         case "ArrowLeft": {
           send({
             type: "Time.skipBackward.keyboard",
