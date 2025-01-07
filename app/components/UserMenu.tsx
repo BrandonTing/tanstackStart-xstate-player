@@ -2,7 +2,7 @@
 
 import { SignInButton, SignOutButton, SignUpButton, SignedIn, SignedOut, useUser } from '@clerk/tanstack-start'
 import { Link, useLocation } from '@tanstack/react-router'
-import { Info, LogOut } from 'lucide-react'
+import { Info, LogOut, User } from 'lucide-react'
 import { Button } from './ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
@@ -43,18 +43,29 @@ export function UserMenu() {
       </Popover>
     </SignedIn>
     <SignedOut>
-      <Button
-        variant="ghost"
-        className="text-white hover:text-gray-900"
-      >
-        <SignInButton />
-      </Button>
-      <Button
-        variant="ghost"
-        className="text-white hover:text-gray-900"
-      >
-        <SignUpButton />
-      </Button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" className="text-white">
+            <User className="w-6 h-6" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-56 bg-zinc-800 border-zinc-700">
+          <div className="grid gap-4">
+            <Button
+              variant="ghost"
+              className="text-white hover:text-gray-900"
+            >
+              <SignInButton />
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-white hover:text-gray-900"
+            >
+              <SignUpButton />
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
     </SignedOut>
   </div>
 }
