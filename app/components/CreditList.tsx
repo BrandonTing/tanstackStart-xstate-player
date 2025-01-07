@@ -6,6 +6,7 @@ interface CreditListProps {
 }
 
 export function CreditList({ creditList }: CreditListProps) {
+
 	return (
 		<div className="mb-6">
 			<h2 className="mb-4 text-2xl font-semibold text-white">Cast</h2>

@@ -40,14 +40,14 @@ export function SeasonDialog({ seasons, id, title }: ISeasonDialog) {
         <span>Seasons</span>
       </Button>
     </DialogTrigger>
-    <DialogContent className="text-white bg-zinc-900">
+    <DialogContent className="w-11/12 max-w-4xl text-white bg-zinc-900">
       <DialogHeader>
         <DialogTitle className="text-2xl font-bold">Seasons</DialogTitle>
         <DialogDescription className="text-gray-400">
           Information about all seasons of {title}
         </DialogDescription>
       </DialogHeader>
-      <ScrollArea className="h-[60vh] pr-4">
+      <ScrollArea className="h-[70vh] pr-4">
         {seasons.map((season) => (
           <Suspense key={`season_${season.id}`}>
             <Season seriesId={id} season={season} />

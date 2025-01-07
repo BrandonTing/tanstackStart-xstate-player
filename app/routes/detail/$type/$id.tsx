@@ -17,7 +17,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { Match } from "effect";
-import { Play, Plus, ThumbsUp } from "lucide-react";
+import { Play, Plus, Star, ThumbsUp } from "lucide-react";
 import { use } from "react";
 
 const getDetail = createServerFn({
@@ -108,7 +108,6 @@ function resetScrollToTop(node: HTMLDivElement | null) {
 
 function RouteComponent() {
   const { data, deferred } = Route.useLoaderData();
-  const { queryClient } = Route.useRouteContext()
   const deferredData = use(deferred);
   if (!data) {
     return (
@@ -133,6 +132,10 @@ function RouteComponent() {
             ref={resetScrollToTop}
           >
             <h1 className="mb-4 text-4xl font-bold text-white">{data.title}</h1>
+            <div className="flex items-center mb-4">
+              <Star className="w-5 h-5 mr-1 text-yellow-400" />
+              <span className="text-lg text-white">{data.voteScore ? data.voteScore.toFixed(1) : 'N/A'}</span>
+            </div>
             <p className="mb-4 text-gray-400">{data.overview}</p>
             <p className="mb-4 text-gray-400">
               Release Date: {data.releaseDate}

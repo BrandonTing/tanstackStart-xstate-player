@@ -67,6 +67,7 @@ export const TVShowDetailSchema = Schema.transform(
 	}),
 	BaseDetailSchema,
 	{
+		strict: false,
 		encode: (to) => {
 			return {
 				id: to.id,
@@ -103,6 +104,9 @@ export const TVShowDetailSchema = Schema.transform(
 						releaseDate: season.air_date ?? "TBD",
 						voteScore: season.vote_average,
 						seasonNumber: season.season_number,
+						isUpcoming:
+							!season.air_date ||
+							new Date(season.air_date).getTime() > Date.now(),
 					};
 				}),
 				categories: from.genres,

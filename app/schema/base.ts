@@ -32,6 +32,7 @@ const seasonSchema = Schema.Struct({
 	releaseDate: Schema.String,
 	voteScore: Schema.Number,
 	seasonNumber: Schema.Number,
+	isUpcoming: Schema.Boolean,
 });
 export type SeasonType = typeof seasonSchema.Type;
 export const BaseDetailSchema = Schema.Struct({
