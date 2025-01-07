@@ -70,7 +70,7 @@ export function Player({ src }: PlayerProps) {
         node.addEventListener(
           "click",
           () => {
-            send({ type: "Video.Click" });
+            send({ type: "Video.ToggleWithAnimate" });
           },
           {
             signal: abortController.signal,
@@ -145,7 +145,7 @@ export function Player({ src }: PlayerProps) {
         case " ":
         case "k": {
           send({
-            type: "Video.Click"
+            type: "Video.ToggleWithAnimate"
           })
           break;
         }

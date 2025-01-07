@@ -28,7 +28,7 @@ export const playerMachine = setup({
 					type: "Destroy Player";
 			  }
 			| {
-					type: "Video.Click";
+					type: "Video.ToggleWithAnimate";
 			  }
 			| {
 					type: "Loaded.Play";
@@ -199,7 +199,7 @@ export const playerMachine = setup({
 												},
 											},
 										},
-										"Video.Click": {
+										"Video.ToggleWithAnimate": {
 											target: "paused",
 											actions: raise({
 												type: "animate",
@@ -238,7 +238,7 @@ export const playerMachine = setup({
 										"Loaded.Play": {
 											target: "play",
 										},
-										"Video.Click": {
+										"Video.ToggleWithAnimate": {
 											target: "play",
 											actions: raise({
 												type: "animate",
