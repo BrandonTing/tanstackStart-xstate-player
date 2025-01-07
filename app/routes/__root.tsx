@@ -56,7 +56,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <body className="text-white bg-black">
           <div className="min-h-screen">
             <Header />
-            {children}
+            <main>
+              {children}
+            </main>
           </div>
           <ScrollRestoration />
           <Scripts />

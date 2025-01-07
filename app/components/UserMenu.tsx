@@ -16,7 +16,9 @@ export function UserMenu() {
           {
             user ? <Button variant="ghost" size="icon" className="text-white rounded-full">
               <img className="w-6 h-6 rounded-full" src={user?.imageUrl} alt={user?.username ?? "user"} />
-            </Button> : null
+            </Button> : <Button variant="ghost" size="icon" className="text-white rounded-full ">
+              User
+            </Button>
           }
         </PopoverTrigger>
         <PopoverContent className="w-56 bg-zinc-800 border-zinc-700">

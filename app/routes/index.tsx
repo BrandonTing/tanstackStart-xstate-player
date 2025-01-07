@@ -51,7 +51,7 @@ function Home() {
   const featuredMovie = movies.results[0];
 
   return (
-    <main>
+    <>
       {featuredMovie ? (
         <FeaturedMovie
           id={featuredMovie.id}
@@ -64,6 +64,6 @@ function Home() {
         <HomeContentRow title="TV Shows" contents={tvShows.results} />
         <HomeContentRow title="Movies" contents={movies.results} />
       </div>
-    </main>
+    </>
   );
 }
