@@ -2,6 +2,7 @@ import { ContentGrid } from "@/components/ContentGrid";
 import { CreditList } from "@/components/CreditList";
 import { SeasonDialog } from "@/components/detail/SeasonDialog";
 import { Button } from "@/components/ui/button";
+import type { Detail } from "@/schema/base";
 import {
   getMovieDeferredDataProgram,
   getMoviesDetailProgram,
@@ -13,11 +14,14 @@ import {
   getTVSeriesDetailProgram,
   tvShowsByidApiRuntime,
 } from "@/services/tvShowsApi";
+import { useUser } from "@clerk/tanstack-start";
 import { queryOptions } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
+import { api } from "convex/_generated/api";
+import { useMutation, useQuery } from "convex/react";
 import { Match } from "effect";
-import { Play, Plus, Star, ThumbsUp } from "lucide-react";
+import { Minus, Play, Plus, Star, ThumbsUp } from "lucide-react";
 import { use } from "react";
 
 const getDetail = createServerFn({
@@ -109,6 +113,7 @@ function resetScrollToTop(node: HTMLDivElement | null) {
 function RouteComponent() {
   const { data, deferred } = Route.useLoaderData();
   const deferredData = use(deferred);
+  const { user } = useUser()
   if (!data) {
     return (
       <div className="flex items-center justify-center min-h-screen text-white bg-black">
@@ -152,10 +157,11 @@ function RouteComponent() {
                   <span>Play</span>
                 </Button>
               </Link>
-              <Button variant="outline" className="flex items-center space-x-2">
-                <Plus className="w-4 h-4" />
-                <span>My List</span>
-              </Button>
+              {
+                user && data ? (
+                  <MyListButton user={user} content={data} />
+                ) : null
+              }
               <Button variant="outline" className="flex items-center space-x-2">
                 <ThumbsUp className="w-4 h-4" />
                 <span>Rate</span>
@@ -198,4 +204,35 @@ function RouteComponent() {
       </div>
     </main>
   );
+}
+
+function MyListButton({ user, content }: {
+  user: NonNullable<ReturnType<typeof useUser>["user"]>,
+  content: Detail
+}) {
+  const setFavorite = useMutation(api.favorite.setFavoriteList)
+  const cancelFavorite = useMutation(api.favorite.cancelFavorite)
+  const existingFavoriteId = useQuery(api.favorite.checkContentIsUserFavorite, {
+    userId: user.id,
+    contentId: content.id
+  })
+  return <Button variant="outline" className="flex items-center space-x-2" onClick={() => {
+    // TODO adopt machine
+    if (existingFavoriteId) {
+      cancelFavorite({ id: existingFavoriteId })
+      return
+    }
+    setFavorite({
+      userId: user.id,
+      contentId: content.id,
+      name: content.title,
+      imgPath: content.posterPath
+    })
+  }}>
+    {
+      existingFavoriteId ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />
+    }
+    <span>My List</span>
+  </Button>
+
 }

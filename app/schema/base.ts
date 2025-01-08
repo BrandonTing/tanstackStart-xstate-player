@@ -50,7 +50,7 @@ export const BaseDetailSchema = Schema.Struct({
 	voteScore: Schema.Number,
 	seasons: Schema.Array(seasonSchema),
 });
-
+export type Detail = typeof BaseDetailSchema.Type;
 const BaseCreditSchema = Schema.transform(
 	Schema.Struct({
 		id: Schema.Number,

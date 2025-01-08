@@ -2,6 +2,7 @@
 import { Header } from "@/components/Header";
 import "@/index.css";
 import css from "@/index.css?url";
+import { getClientEnvProgram } from "@/services/clientEnv";
 import { ClerkProvider } from '@clerk/tanstack-start';
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -10,7 +11,9 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { Meta, Scripts } from "@tanstack/start";
-import type { ReactNode } from "react";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { Effect } from "effect";
+import { type ReactNode, useState } from "react";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -57,7 +60,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <div className="min-h-screen">
             <Header />
             <main>
-              {children}
+              <Provider>
+                {children}
+              </Provider>
             </main>
           </div>
           <ScrollRestoration />
@@ -65,6 +70,15 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         </body>
       </html>
     </ClerkProvider>
-
   );
+}
+
+function Provider({ children }: Readonly<{ children: ReactNode }>) {
+  const [convex] = useState(() => {
+    const env = Effect.runSync(getClientEnvProgram)
+    return new ConvexReactClient(env.VITE_CONVEX_URL)
+  });
+  return <ConvexProvider client={convex}>
+    {children}
+  </ConvexProvider>
 }
