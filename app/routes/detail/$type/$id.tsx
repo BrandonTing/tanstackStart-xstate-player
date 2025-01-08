@@ -22,7 +22,7 @@ import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { Match } from "effect";
-import { Minus, Play, Plus, Star, ThumbsUp } from "lucide-react";
+import { Loader2, Minus, Play, Plus, Star, ThumbsUp } from "lucide-react";
 import { use } from "react";
 
 const getDetail = createServerFn({
@@ -227,7 +227,7 @@ function MyListButton({ user, content }: {
     contentId: content.id
   })
   return <Button variant="outline" className="flex items-center space-x-2" onClick={() => {
-    // TODO adopt machine
+    // TODO adopt debounce machine
     if (existingFavoriteId) {
       cancelFavorite({ id: existingFavoriteId })
       return
@@ -240,7 +240,9 @@ function MyListButton({ user, content }: {
     })
   }}>
     {
-      existingFavoriteId ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />
+      existingFavoriteId === undefined ? <Loader2 className="w-4 h-4 animate-spin" />
+        : existingFavoriteId ? <Minus className="w-4 h-4" />
+          : <Plus className="w-4 h-4" />
     }
     <span>My List</span>
   </Button>
