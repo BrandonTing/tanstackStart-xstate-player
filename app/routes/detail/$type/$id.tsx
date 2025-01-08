@@ -214,12 +214,7 @@ function MyListButton({ user, content }: {
   const setFavorite = useMutation(api.favorite.setFavoriteList).withOptimisticUpdate(
     (localStore, args) => {
       const { userId, contentId } = args;
-      const currentValue = localStore.getQuery(api.favorite.checkContentIsUserFavorite, {
-        userId, contentId
-      });
-      if (currentValue !== undefined) {
-        localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId, contentId }, "optimistic id" as Id<"favorite">);
-      }
+      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId, contentId }, "optimistic id" as Id<"favorite">);
     },
   );
   const cancelFavorite = useMutation(api.favorite.cancelFavorite).withOptimisticUpdate(
