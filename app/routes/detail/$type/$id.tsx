@@ -19,6 +19,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { api } from "convex/_generated/api";
+import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { Match } from "effect";
 import { Minus, Play, Plus, Star, ThumbsUp } from "lucide-react";
@@ -210,8 +211,22 @@ function MyListButton({ user, content }: {
   user: NonNullable<ReturnType<typeof useUser>["user"]>,
   content: Detail
 }) {
-  const setFavorite = useMutation(api.favorite.setFavoriteList)
-  const cancelFavorite = useMutation(api.favorite.cancelFavorite)
+  const setFavorite = useMutation(api.favorite.setFavoriteList).withOptimisticUpdate(
+    (localStore, args) => {
+      const { userId, contentId } = args;
+      const currentValue = localStore.getQuery(api.favorite.checkContentIsUserFavorite, {
+        userId, contentId
+      });
+      if (currentValue !== undefined) {
+        localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId, contentId }, "optimistic id" as Id<"favorite">);
+      }
+    },
+  );
+  const cancelFavorite = useMutation(api.favorite.cancelFavorite).withOptimisticUpdate(
+    (localStore) => {
+      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId: user.id, contentId: content.id }, "" as Id<"favorite">);
+    },
+  )
   const existingFavoriteId = useQuery(api.favorite.checkContentIsUserFavorite, {
     userId: user.id,
     contentId: content.id
