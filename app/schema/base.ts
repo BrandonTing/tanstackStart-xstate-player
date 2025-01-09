@@ -25,6 +25,7 @@ export const BaseContentSchema = Schema.Struct({
 	releaseDate: Schema.String,
 	type: contentTypeSchema,
 });
+export type Content = typeof BaseContentSchema.Type;
 const seasonSchema = Schema.Struct({
 	id: Schema.Number,
 	title: Schema.String,

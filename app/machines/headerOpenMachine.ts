@@ -21,6 +21,11 @@ export const headerOpenMachine = setup({
 					target: "Hide",
 				},
 			},
+			on: {
+				Show: {
+					target: "Triggered",
+				},
+			},
 		},
 		Triggered: {
 			tags: ["Show"],
