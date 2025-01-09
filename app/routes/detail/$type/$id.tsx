@@ -254,7 +254,7 @@ function MyListButton({ user, content }: {
         }),
         Match.when(Match.undefined, () => {
           // existingFavoriteId is still loading
-          Console.warn("User should not be able to submit form before existingFavoriteId is loaded")
+          Effect.runSync(Console.warn("User should not be able to submit form before existingFavoriteId is loaded"))
           return new ConvexError()
         }),
         Match.exhaustive

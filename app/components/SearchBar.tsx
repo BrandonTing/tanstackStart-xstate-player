@@ -28,7 +28,6 @@ export function SearchBar({
   const { type, keyword, results } = useSelector(actorRef, ({ context }) => context);
   const isFetching = useSelector(actorRef, (snapshot) => snapshot.matches({ "Active": "Fetching" }))
   const isFetchDone = useSelector(actorRef, (snapshot) => snapshot.matches({ "Active": "Fetch Done" }))
-  console.log(results)
   return (
     <div className="relative flex items-center" >
       <div className="relative flex items-center rounded-md bg-zinc-800">
@@ -79,7 +78,6 @@ export function SearchBar({
                   return <div className="container flex items-center justify-center h-20">
                     <Loader2 className="animate-spin" />
                   </div>
-
                 }),
                 Match.when(({ results }) => {
                   return results.length === 0
