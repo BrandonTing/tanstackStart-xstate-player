@@ -215,7 +215,7 @@ function MyListButton({ user, content }: {
   const setFavorite = useMutation(api.favorite.setFavoriteList).withOptimisticUpdate(
     (localStore, args) => {
       const { userId, contentId } = args;
-      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId, contentId }, "optimistic id" as Id<"favorite">);
+      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId, contentId, }, "optimistic id" as Id<"favorite">);
     },
   );
   const cancelFavorite = useMutation(api.favorite.cancelFavorite).withOptimisticUpdate(
@@ -228,7 +228,6 @@ function MyListButton({ user, content }: {
     contentId: content.id
   })
   const [_, formAction, isPending] = useActionState(async () => {
-    // TODO adopt debounce machine
     if (existingFavoriteId) {
       await cancelFavorite({ id: existingFavoriteId })
       return
@@ -240,7 +239,7 @@ function MyListButton({ user, content }: {
       imgPath: content.posterPath
     })
   }, null)
-  return <form action={formAction}><Button variant="outline" className="flex items-center space-x-2">
+  return <form action={formAction}><Button variant="outline" type="submit" disabled={isPending} className="flex items-center space-x-2">
     {
       existingFavoriteId === undefined || isPending ? <Loader2 className="w-4 h-4 animate-spin" />
         : existingFavoriteId ? <Minus className="w-4 h-4" />
