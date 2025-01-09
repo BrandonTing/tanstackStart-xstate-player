@@ -1,7 +1,7 @@
 import { v } from "convex/values";
-import { Console, Effect } from "effect";
+import { Effect } from "effect";
 import { mutation, query } from "./_generated/server";
-import { ConvexError } from "./error";
+import { ConvexError, convexErrorHandling } from "./error";
 
 export const setFavoriteList = mutation({
 	args: {
@@ -25,13 +25,7 @@ export const setFavoriteList = mutation({
 				catch: () => new ConvexError(),
 			});
 			return data;
-		}).pipe(
-			Effect.catchTag("ConvexError", () => {
-				Effect.runSync(Console.error("Failed to setFavoriteList"));
-				return Effect.succeed(null);
-			}),
-			Effect.runPromise,
-		);
+		}).pipe(convexErrorHandling, Effect.runPromise);
 	},
 });
 
@@ -56,13 +50,7 @@ export const checkContentIsUserFavorite = query({
 				catch: () => new ConvexError(),
 			});
 			return data?._id;
-		}).pipe(
-			Effect.catchTag("ConvexError", () => {
-				Effect.runSync(Console.error("Failed to setFavoriteList"));
-				return Effect.succeed(null);
-			}),
-			Effect.runPromise,
-		);
+		}).pipe(convexErrorHandling, Effect.runPromise);
 	},
 });
 
@@ -77,12 +65,6 @@ export const cancelFavorite = mutation({
 				catch: () => new ConvexError(),
 			});
 			return data;
-		}).pipe(
-			Effect.catchTag("ConvexError", () => {
-				Effect.runSync(Console.error("Failed to setFavoriteList"));
-				return Effect.succeed(null);
-			}),
-			Effect.runPromise,
-		);
+		}).pipe(convexErrorHandling, Effect.runPromise);
 	},
 });

@@ -20,8 +20,9 @@ import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
+import { ConvexError, convexErrorHandling } from "convex/error";
 import { useMutation, useQuery } from "convex/react";
-import { Match } from "effect";
+import { Console, Effect, Match } from "effect";
 import { Loader2, Minus, Play, Plus, Star, ThumbsUp } from "lucide-react";
 import { use, useActionState } from "react";
 
@@ -220,7 +221,7 @@ function MyListButton({ user, content }: {
   );
   const cancelFavorite = useMutation(api.favorite.cancelFavorite).withOptimisticUpdate(
     (localStore) => {
-      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId: user.id, contentId: content.id }, "" as Id<"favorite">);
+      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId: user.id, contentId: content.id }, null);
     },
   )
   const existingFavoriteId = useQuery(api.favorite.checkContentIsUserFavorite, {
@@ -228,16 +229,67 @@ function MyListButton({ user, content }: {
     contentId: content.id
   })
   const [_, formAction, isPending] = useActionState(async () => {
-    if (existingFavoriteId) {
-      await cancelFavorite({ id: existingFavoriteId })
-      return
-    }
-    await setFavorite({
-      userId: user.id,
-      contentId: content.id,
-      name: content.title,
-      imgPath: content.posterPath
-    })
+    await Effect.gen(function* () {
+      const match = Match.type<typeof existingFavoriteId>().pipe(
+        Match.when(Match.string, (id) => {
+          return Effect.tryPromise({
+            try: () => cancelFavorite({ id }),
+            catch: () => new ConvexError()
+          })
+        }),
+        Match.when(Match.null, () => {
+          return Effect.tryPromise({
+            try: () => setFavorite({
+              userId: user.id,
+              contentId: content.id,
+              name: content.title,
+              imgPath: content.posterPath
+            }),
+            catch: () => new ConvexError()
+          })
+        }),
+        Match.when(Match.undefined, () => {
+          // existingFavoriteId is still loading
+          Console.warn("User should not be able to submit form before existingFavoriteId is loaded")
+          return new ConvexError()
+        }),
+        Match.exhaustive
+      )
+      yield* match(existingFavoriteId)
+    }).pipe(
+      convexErrorHandling,
+      Effect.runPromise
+    )
+
+    // Match.value(existingFavoriteId).pipe(
+    //   Match.when(null, async () => {
+    //     await Effect.gen(function* () {
+    //       yield* Effect.tryPromise({
+    //         try: () => setFavorite({
+    //           userId: user.id,
+    //           contentId: content.id,
+    //           name: content.title,
+    //           imgPath: content.posterPath
+    //         }),
+    //         catch: () => new ConvexError()
+    //       })
+    //     }).pipe(
+    //       convexErrorHandling,
+    //       Effect.runPromise
+    //     )
+    //   }),
+    //   Match.orElse(async (id) => {
+    //     await Effect.gen(function* () {
+    //       yield* Effect.tryPromise({
+    //         try: () => cancelFavorite({ id }),
+    //         catch: () => new ConvexError()
+    //       })
+    //     }).pipe(
+    //       convexErrorHandling,
+    //       Effect.runPromise
+    //     )
+    //   })
+    // )
   }, null)
   return <form action={formAction}><Button variant="outline" type="submit" disabled={isPending} className="flex items-center space-x-2">
     {
