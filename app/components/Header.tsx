@@ -3,7 +3,7 @@ import { searchAsTypeMachine } from "@/machines/searchAsTypeMachine";
 import type { FileRoutesByTo } from "@/routeTree.gen";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Link, useMatch, useNavigate } from "@tanstack/react-router";
-import { useActorRef, useMachine, useSelector } from "@xstate/react";
+import { useMachine } from "@xstate/react";
 import { Drawer } from "vaul";
 import type { Actor } from "xstate";
 import { SearchBar } from "./SearchBar";
@@ -78,7 +78,7 @@ function ActiveHeaderComponent({
 }) {
   const isTvShowsRoute = useMatch({ from: "/tvShows", shouldThrow: false })
   const navigate = useNavigate()
-  const actorRef = useActorRef(searchAsTypeMachine.provide({
+  const [snapshot, _, actorRef] = useMachine(searchAsTypeMachine.provide({
     actions: {
       "On Item Select": (_, { content: { type, id } }) => {
         navigate({ to: `/detail/${type}/${id}` })
@@ -89,7 +89,7 @@ function ActiveHeaderComponent({
       initType: isTvShowsRoute ? "tvShows" : "movies"
     }
   })
-  const isSearchBarActive = useSelector(actorRef, (snapshot) => snapshot.matches("Active"))
+  const isSearchBarActive = snapshot.matches("Active")
 
   return <header className="z-50 w-full bg-black bg-opacity-75" ref={(node) => {
     const abortController = new AbortController()
