@@ -6,7 +6,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 // app/routes/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 
 const getTrendingContent = createServerFn({
   method: "GET",
@@ -41,29 +41,38 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { data, isFetching } = useQuery(trendingQueryOptions());
-  if (isFetching) {
-    return <p className="pt-20 ">Loading...</p>;
-  }
-  if (!data) {
-    return <p className="pt-20 ">Failed to fetch trending info</p>;
-  }
-  const { movies, tvShows } = data;
-  const featuredMovie = movies.results[0];
-
-  return (
-    <>
-      {featuredMovie ? (
-        <FeaturedMovie
-          id={featuredMovie.id}
-          title={featuredMovie.title}
-          description={featuredMovie.overview}
-          imageUrl={featuredMovie.posterPath}
-        />
-      ) : null}
-      <div className="container px-4 py-8 mx-auto">
-        <HomeContentRow title="TV Shows" contents={tvShows.results} />
-        <HomeContentRow title="Movies" contents={movies.results} />
-      </div>
-    </>
-  );
+  return matcher({ data, isFetching })
 }
+
+const matcher = Match.type<{
+  isFetching: boolean,
+  data: Awaited<ReturnType<typeof getTrendingContent>> | undefined
+}>().pipe(
+  Match.when({
+    isFetching: true
+  }, () => <p className="pt-20 ">Loading...</p>),
+  Match.not({ data: Match.defined }, () => {
+    return <p className="pt-20 ">Failed to fetch trending info</p>
+  }),
+  Match.orElse(({ data }) => {
+    const { movies, tvShows } = data;
+    const featuredMovie = movies.results[0];
+
+    return (
+      <>
+        {featuredMovie ? (
+          <FeaturedMovie
+            id={featuredMovie.id}
+            title={featuredMovie.title}
+            description={featuredMovie.overview}
+            imageUrl={featuredMovie.posterPath}
+          />
+        ) : null}
+        <div className="container px-4 py-8 mx-auto">
+          <HomeContentRow title="TV Shows" contents={tvShows.results} />
+          <HomeContentRow title="Movies" contents={movies.results} />
+        </div>
+      </>
+    );
+  })
+)

@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { playerMachine } from "@/machines/playerMachine";
 import { useMachine } from "@xstate/react";
+import { Match } from "effect";
 import {
   Pause,
   Play,
@@ -94,28 +95,23 @@ export function Player({ src }: PlayerProps) {
   });
 
   const togglePlay = useCallback(() => {
-    if (
-      snapshot.matches({
-        PlayerLoaded: {
-          Loaded: {
-            "Controls": "paused"
-          },
-        },
-      })
-    ) {
-      send({ type: "Loaded.Play" });
-    } else if (
-      snapshot.matches({
-        PlayerLoaded: {
-          Loaded: {
-            "Controls": "play"
-          },
-        },
-      })
-    ) {
-      send({ type: "Loaded.Pause" });
-    }
-  }, [snapshot, send]);
+    const controlling = snapshot.hasTag("Controlling")
+    Match.type<{ controlling: boolean, isPlaying: boolean }>().pipe(
+      Match.when({ controlling: false }, () => {
+        return
+      }),
+      Match.when({ isPlaying: true }, () => {
+        send({ type: "Loaded.Pause" });
+      }),
+      Match.when({ isPlaying: false }, () => {
+        send({ type: "Loaded.Play" });
+      }),
+      Match.exhaustive
+    )({
+      controlling,
+      isPlaying
+    })
+  }, [snapshot, send, isPlaying]);
   const {
     currentTime,
     metadata: { duration },

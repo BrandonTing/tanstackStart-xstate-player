@@ -1,17 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { SignInButton, SignUpButton, useAuth } from '@clerk/tanstack-start';
 import { Outlet, createFileRoute } from '@tanstack/react-router';
+import { Match } from 'effect';
 
 export const Route = createFileRoute('/_auth')({
   component: RouteComponent,
 })
 
-function RouteComponent() {
-  const { isLoaded, userId } = useAuth()
-  if (!isLoaded) {
+const matcher = Match.type<{
+  isLoaded: boolean,
+  userId: string | null | undefined
+}>().pipe(
+  Match.when({
+    isLoaded: false
+  }, () => {
     return <p className="pt-20 ">Loading...</p>;
-  }
-  if (!userId) {
+  }),
+  Match.not({
+    userId: Match.string
+  }, () => {
     return <div className='mt-20'>
       <h1 className="mb-8 text-4xl font-bold text-center text-white">Sign In Required</h1>
       <div className='flex items-center justify-center w-full'>
@@ -36,6 +43,16 @@ function RouteComponent() {
         </div>
       </div>
     </div>
-  }
-  return <Outlet />
+  }),
+  Match.orElse(() => {
+    return <Outlet />
+  })
+)
+
+function RouteComponent() {
+  const { isLoaded, userId } = useAuth()
+  return matcher({
+    isLoaded,
+    userId
+  })
 }

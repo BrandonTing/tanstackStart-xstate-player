@@ -57,6 +57,7 @@ export const playerMachine = setup({
 			  },
 		tags: {} as
 			| "Show Control"
+      | "Controlling"
 			| "Animate action"
 			| "Animate playing state"
 			| "Animate paused state"
@@ -182,6 +183,7 @@ export const playerMachine = setup({
 						Controls: {
 							initial: "play",
 							entry: "Get Metadata",
+              tags: ["Controlling"],
 							states: {
 								play: {
 									entry: "Play the video",
