@@ -227,13 +227,13 @@ function MyListButton({ user, content }: {
     userId: user.id,
     contentId: content.id
   })
-  const [_, formAction, isPending] = useActionState(() => {
+  const [_, formAction, isPending] = useActionState(async () => {
     // TODO adopt debounce machine
     if (existingFavoriteId) {
-      cancelFavorite({ id: existingFavoriteId })
+      await cancelFavorite({ id: existingFavoriteId })
       return
     }
-    setFavorite({
+    await setFavorite({
       userId: user.id,
       contentId: content.id,
       name: content.title,
