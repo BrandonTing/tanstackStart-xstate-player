@@ -152,6 +152,7 @@ function RouteComponent() {
                 search={{
                   title: data.title,
                 }}
+                viewTransition
               >
                 <Button className="flex items-center space-x-2">
                   <Play className="w-4 h-4" />

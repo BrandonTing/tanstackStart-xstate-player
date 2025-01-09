@@ -42,6 +42,7 @@ function HeaderLink({
       activeProps={{
         className: "font-bold border-b-2 border-red-600",
       }}
+      viewTransition
     >
       {children}
     </Link>

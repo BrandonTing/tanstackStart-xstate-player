@@ -24,12 +24,12 @@ export function FeaturedMovie({
           <h1 className="mb-4 text-5xl font-bold ">{title}</h1>
           <p className="max-w-xl mb-6 text-lg ">{description}</p>
           <div className="space-x-4">
-            <Link to={`/video/${id}`} search={{ title }}>
+            <Link to={`/video/${id}`} search={{ title }} viewTransition>
               <Button variant="default" size="lg">
                 Play
               </Button>
             </Link>
-            <Link to={`/detail/movies/${id}`} preload="intent">
+            <Link to={`/detail/movies/${id}`} preload="intent" viewTransition>
               <Button variant="outline" size="lg" className="text-black">
                 More Info
               </Button>

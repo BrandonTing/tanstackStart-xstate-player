@@ -74,6 +74,7 @@ export function HomeContentRow({ title, contents }: HomeContentRowProps) {
 			>
 				{contents.map((content) => (
 					<Link
+          viewTransition
 						key={content.id}
 						to={`/detail/${content.type}/${content.id}`}
 						className="flex-none"
