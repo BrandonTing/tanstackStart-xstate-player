@@ -12,7 +12,6 @@ export const setRating = mutation({
 	},
 	handler: async (ctx, { contentId, userId, id, rating }) => {
 		return Effect.gen(function* () {
-			const createTime = new Date().toISOString();
 			const data = yield* Effect.tryPromise({
 				try: () =>
 					Match.value(id).pipe(
