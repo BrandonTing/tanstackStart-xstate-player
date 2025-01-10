@@ -253,7 +253,7 @@ function MyListButton({ user, content }: {
           })
         }),
         Match.when(Match.undefined, () => {
-          // existingFavoriteId is still loading
+          // existingFavoriteId is still loading  
           Effect.runSync(Console.warn("User should not be able to submit form before existingFavoriteId is loaded"))
           return new ConvexError()
         }),
@@ -266,11 +266,12 @@ function MyListButton({ user, content }: {
     )
   }, null)
   return <form action={formAction}><Button variant="outline" type="submit" disabled={isPending} className="flex items-center space-x-2">
-    {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
     {
-      existingFavoriteId === undefined ? <Loader2 className="w-4 h-4 animate-spin" />
-        : existingFavoriteId ? <Minus className="w-4 h-4" />
-          : <Plus className="w-4 h-4" />
+      Match.value(existingFavoriteId).pipe(
+        Match.whenOr(Match.undefined, () => isPending, () => <Loader2 className="w-4 h-4 animate-spin" />),
+        Match.when(Match.nonEmptyString, () => <Minus className="w-4 h-4" />),
+        Match.orElse(() => <Plus className="w-4 h-4" />)
+      )
     }
     <span>My List</span>
   </Button>
