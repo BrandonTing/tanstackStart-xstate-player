@@ -10,24 +10,39 @@ import {
 } from "@/components/ui/select";
 import type { DeepReadonly } from "@/lib/type";
 import {
-  type searchAsTypeMachine,
+  searchAsTypeMachine,
   typeLabelMap,
 } from "@/machines/searchAsTypeMachine";
 import type { Content, ContentType } from "@/schema/base";
-import { useSelector } from "@xstate/react";
+import { useMatch, useNavigate } from "@tanstack/react-router";
+import { useMachine } from "@xstate/react";
 import { Match } from "effect";
 import { Loader2 } from "lucide-react";
-import type { ActorRefFromLogic } from "xstate";
 import { ScrollArea } from "./ui/scroll-area";
 
 export function SearchBar({
-  actorRef,
+  onActiveChange
 }: {
-  actorRef: ActorRefFromLogic<typeof searchAsTypeMachine>;
+  onActiveChange: (active: boolean) => void
 }) {
-  const { type, keyword, results } = useSelector(actorRef, ({ context }) => context);
-  const isFetching = useSelector(actorRef, (snapshot) => snapshot.matches({ "Active": "Fetching" }))
-  const isFetchDone = useSelector(actorRef, (snapshot) => snapshot.matches({ "Active": "Fetch Done" }))
+  const isTvShowsRoute = useMatch({ from: "/tvShows", shouldThrow: false })
+  const navigate = useNavigate()
+  const [snapshot, _, actorRef] = useMachine(searchAsTypeMachine.provide({
+    actions: {
+      "On Item Select": (_, { content: { type, id } }) => {
+        navigate({ to: `/detail/${type}/${id}` })
+      },
+      "On Active": () => onActiveChange(true),
+      "On Inactive": () => onActiveChange(false),
+    },
+  }), {
+    input: {
+      initType: isTvShowsRoute ? "tvShows" : "movies"
+    }
+  })
+  const { type, keyword, results } = snapshot.context
+  const isFetchDone = snapshot.matches({ "Active": "Fetch Done" })
+  const isFetching = snapshot.matches({ "Active": "Fetching" })
   return (
     <div className="relative flex items-center" >
       <div className="relative flex items-center rounded-md bg-zinc-800">
@@ -39,6 +54,8 @@ export function SearchBar({
           onOpenChange={(open) => {
             if (open) {
               actorRef.send({ type: "Status.Activate" });
+            } else {
+              actorRef.send({ type: "Status.Inactivate" });
             }
           }}
         >
@@ -62,6 +79,9 @@ export function SearchBar({
           value={keyword}
           onFocus={() => {
             actorRef.send({ type: "Status.Activate" })
+          }}
+          onBlur={() => {
+            actorRef.send({ type: "Status.Inactivate" })
           }}
           onChange={(e) => actorRef.send({ type: "Condition.Keyword.Change", keyword: e.target.value })}
         />

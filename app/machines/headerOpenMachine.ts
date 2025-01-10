@@ -8,6 +8,12 @@ export const headerOpenMachine = setup({
 			  }
 			| {
 					type: "Hide";
+			  }
+			| {
+					type: "Fixed.Activate";
+			  }
+			| {
+					type: "Fixed.InActivate";
 			  },
 		tags: "" as "Show",
 	},
@@ -32,6 +38,17 @@ export const headerOpenMachine = setup({
 			on: {
 				Hide: {
 					target: "Hide",
+				},
+				"Fixed.Activate": {
+					target: "Fixed",
+				},
+			},
+		},
+		Fixed: {
+			tags: ["Show"],
+			on: {
+				"Fixed.InActivate": {
+					target: "Triggered",
 				},
 			},
 		},

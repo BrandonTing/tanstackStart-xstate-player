@@ -266,8 +266,9 @@ function MyListButton({ user, content }: {
     )
   }, null)
   return <form action={formAction}><Button variant="outline" type="submit" disabled={isPending} className="flex items-center space-x-2">
+    {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
     {
-      existingFavoriteId === undefined || isPending ? <Loader2 className="w-4 h-4 animate-spin" />
+      existingFavoriteId === undefined ? <Loader2 className="w-4 h-4 animate-spin" />
         : existingFavoriteId ? <Minus className="w-4 h-4" />
           : <Plus className="w-4 h-4" />
     }

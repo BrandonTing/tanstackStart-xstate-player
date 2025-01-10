@@ -1,17 +1,27 @@
 import { headerOpenMachine } from "@/machines/headerOpenMachine";
-import { searchAsTypeMachine } from "@/machines/searchAsTypeMachine";
 import type { FileRoutesByTo } from "@/routeTree.gen";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { Link, useMatch, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useMachine } from "@xstate/react";
+import { Match } from "effect";
+import { useCallback } from "react";
 import { Drawer } from "vaul";
-import type { Actor } from "xstate";
 import { SearchBar } from "./SearchBar";
 import { UserMenu } from "./UserMenu";
 
 export function Header() {
   const [snapshot, send] = useMachine(headerOpenMachine)
   const isHeaderShown = snapshot.hasTag("Show")
+  const toggleHeaderFixed = useCallback((active: boolean) => {
+    Match.value(active).pipe(
+      Match.when(true, () => {
+        send({ type: "Fixed.Activate" })
+      }),
+      Match.orElse(() => {
+        send({ type: "Fixed.InActivate" })
+      })
+    )
+  }, [send])
   return (
     <>
       {
@@ -39,7 +49,45 @@ export function Header() {
               <Drawer.Title>Dynamic Header</Drawer.Title>
               <Drawer.Description>The header will expand once user move mouse toward top of the screen</Drawer.Description>
             </VisuallyHidden.Root>
-            <ActiveHeaderComponent send={send} />
+            <header className="z-50 w-full bg-black bg-opacity-75" ref={(node) => {
+              const abortController = new AbortController()
+              if (node) {
+                node.addEventListener("mouseleave", () => {
+                  send({ type: "Hide" })
+                }, {
+                  signal: abortController.signal
+                })
+                node.addEventListener("mouseenter", () => {
+                  send({ type: "Show" })
+                }, {
+                  signal: abortController.signal
+                })
+              }
+              return () => {
+                abortController.abort()
+              }
+            }}>
+              <div className="container flex items-center justify-between p-4 mx-auto">
+                <div>Demo site</div>
+                <nav>
+                  <ul className="flex space-x-4">
+                    <li>
+                      <HeaderLink to="/">Home</HeaderLink>
+                    </li>
+                    <li>
+                      <HeaderLink to="/tvShows">TV Shows</HeaderLink>
+                    </li>
+                    <li>
+                      <HeaderLink to="/movies">Movies</HeaderLink>
+                    </li>
+                  </ul>
+                </nav>
+                <div className="flex items-center gap-4">
+                  <SearchBar onActiveChange={toggleHeaderFixed} />
+                  <UserMenu onActiveChange={toggleHeaderFixed} />
+                </div>
+              </div>
+            </header>
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
@@ -68,69 +116,4 @@ function HeaderLink({
       {children}
     </Link>
   );
-}
-
-
-function ActiveHeaderComponent({
-  send
-}: {
-  send: Actor<typeof headerOpenMachine>["send"]
-}) {
-  const isTvShowsRoute = useMatch({ from: "/tvShows", shouldThrow: false })
-  const navigate = useNavigate()
-  const [snapshot, _, actorRef] = useMachine(searchAsTypeMachine.provide({
-    actions: {
-      "On Item Select": (_, { content: { type, id } }) => {
-        navigate({ to: `/detail/${type}/${id}` })
-      }
-    }
-  }), {
-    input: {
-      initType: isTvShowsRoute ? "tvShows" : "movies"
-    }
-  })
-  const isSearchBarActive = snapshot.matches("Active")
-
-  return <header className="z-50 w-full bg-black bg-opacity-75" ref={(node) => {
-    const abortController = new AbortController()
-    if (node) {
-      node.addEventListener("mouseleave", () => {
-        if (isSearchBarActive) {
-          return
-        }
-        send({ type: "Hide" })
-      }, {
-        signal: abortController.signal
-      })
-      node.addEventListener("mouseenter", () => {
-        send({ type: "Show" })
-      }, {
-        signal: abortController.signal
-      })
-    }
-    return () => {
-      abortController.abort()
-    }
-  }}>
-    <div className="container flex items-center justify-between p-4 mx-auto">
-      <div>Demo site</div>
-      <nav>
-        <ul className="flex space-x-4">
-          <li>
-            <HeaderLink to="/">Home</HeaderLink>
-          </li>
-          <li>
-            <HeaderLink to="/tvShows">TV Shows</HeaderLink>
-          </li>
-          <li>
-            <HeaderLink to="/movies">Movies</HeaderLink>
-          </li>
-        </ul>
-      </nav>
-      <div className="flex items-center gap-4">
-        <SearchBar actorRef={actorRef} />
-        <UserMenu />
-      </div>
-    </div>
-  </header>
 }

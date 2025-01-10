@@ -77,6 +77,8 @@ export const searchAsTypeMachine = setup({
 				results: [],
 			};
 		}),
+		"On Active": () => {},
+		"On Inactive": () => {},
 	},
 }).createMachine({
 	context: ({ input: { initType } }) => ({
@@ -87,6 +89,7 @@ export const searchAsTypeMachine = setup({
 	initial: "Inactive",
 	states: {
 		Inactive: {
+			entry: "On Inactive",
 			on: {
 				"Status.Activate": {
 					target: "Active",
@@ -94,6 +97,7 @@ export const searchAsTypeMachine = setup({
 			},
 		},
 		Active: {
+			entry: "On Active",
 			initial: "Idle",
 			states: {
 				Idle: {},

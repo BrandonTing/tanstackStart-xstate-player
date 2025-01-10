@@ -6,12 +6,18 @@ import { Info, LogOut, User } from 'lucide-react'
 import { Button } from './ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
-export function UserMenu() {
+export function UserMenu({
+  onActiveChange
+}: {
+  onActiveChange: (active: boolean) => void
+}) {
   const { pathname } = useLocation()
   const { user } = useUser()
   return <div>
     <SignedIn>
-      <Popover>
+      <Popover onOpenChange={(open) => {
+        onActiveChange(open)
+      }}>
         <PopoverTrigger asChild>
           {
             user ? <Button variant="ghost" size="icon" className="text-white rounded-full">
@@ -45,7 +51,9 @@ export function UserMenu() {
       </Popover>
     </SignedIn>
     <SignedOut>
-      <Popover>
+      <Popover onOpenChange={(open) => {
+        onActiveChange(open)
+      }}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="text-white">
             <User className="w-6 h-6" />
