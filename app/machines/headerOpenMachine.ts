@@ -15,7 +15,7 @@ export const headerOpenMachine = setup({
 			| {
 					type: "Fixed.InActivate";
 			  },
-		tags: "" as "Show",
+		tags: "" as "Show" | "Can Hide",
 	},
 }).createMachine({
 	initial: "Idle",
@@ -35,6 +35,20 @@ export const headerOpenMachine = setup({
 		},
 		Triggered: {
 			tags: ["Show"],
+			initial: "Debounce",
+			states: {
+				Debounce: {
+					after: {
+						300: {
+							target: "Can Hide",
+						},
+					},
+				},
+				"Can Hide": {
+					tags: ["Can Hide"],
+					type: "final",
+				},
+			},
 			on: {
 				Hide: {
 					target: "Hide",

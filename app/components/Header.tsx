@@ -53,7 +53,10 @@ export function Header() {
               const abortController = new AbortController()
               if (node) {
                 node.addEventListener("mouseleave", () => {
-                  send({ type: "Hide" })
+                  // I would love to use guard instead but I cannot access self/current tag from guard function
+                  if (snapshot.hasTag("Can Hide")) {
+                    send({ type: "Hide" })
+                  }
                 }, {
                   signal: abortController.signal
                 })
