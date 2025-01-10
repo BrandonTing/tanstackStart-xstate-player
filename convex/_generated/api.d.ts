@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as error from "../error.js";
 import type * as favorite from "../favorite.js";
+import type * as rating from "../rating.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -27,6 +28,7 @@ import type * as favorite from "../favorite.js";
 declare const fullApi: ApiFromModules<{
   error: typeof error;
   favorite: typeof favorite;
+  rating: typeof rating;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

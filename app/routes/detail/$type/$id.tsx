@@ -1,8 +1,9 @@
 import { ContentGrid } from "@/components/ContentGrid";
 import { CreditList } from "@/components/CreditList";
+import { MyListButton } from "@/components/detail/MyList";
+import { Rating } from "@/components/detail/Rating";
 import { SeasonDialog } from "@/components/detail/SeasonDialog";
 import { Button } from "@/components/ui/button";
-import type { Detail } from "@/schema/base";
 import {
   getMovieDeferredDataProgram,
   getMoviesDetailProgram,
@@ -18,13 +19,9 @@ import { useUser } from "@clerk/tanstack-start";
 import { queryOptions } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { api } from "convex/_generated/api";
-import type { Id } from "convex/_generated/dataModel";
-import { ConvexError, convexErrorHandling } from "convex/error";
-import { useMutation, useQuery } from "convex/react";
-import { Console, Effect, Match } from "effect";
-import { Loader2, Minus, Play, Plus, Star, ThumbsUp } from "lucide-react";
-import { use, useActionState } from "react";
+import { Match } from "effect";
+import { Play, Star } from "lucide-react";
+import { use } from "react";
 
 const getDetail = createServerFn({
   method: "GET",
@@ -111,11 +108,11 @@ function resetScrollToTop(node: HTMLDivElement | null) {
     node.scrollTo({ top: 0 });
   }
 }
-
 function RouteComponent() {
   const { data, deferred, } = Route.useLoaderData();
   const deferredData = use(deferred);
   const { user } = useUser()
+
   return Match.value(data).pipe(
     Match.not(Match.defined, () => {
       return (
@@ -145,6 +142,9 @@ function RouteComponent() {
                   <Star className="w-5 h-5 mr-1 text-yellow-400" />
                   <span className="text-lg text-white">{data.voteScore ? data.voteScore.toFixed(1) : 'N/A'}</span>
                 </div>
+                {
+                  user ? <Rating contentId={data.id} userId={user.id} /> : null
+                }
                 <p className="mb-4 text-gray-400">{data.overview}</p>
                 <p className="mb-4 text-gray-400">
                   Release Date: {data.releaseDate}
@@ -167,10 +167,6 @@ function RouteComponent() {
                       <MyListButton user={user} content={data} />
                     ) : null
                   }
-                  <Button variant="outline" className="flex items-center space-x-2">
-                    <ThumbsUp className="w-4 h-4" />
-                    <span>Rate</span>
-                  </Button>
                   {
                     data.seasons.length ? (
                       <SeasonDialog seasons={data.seasons} id={data.id} title={data.title} />
@@ -211,69 +207,4 @@ function RouteComponent() {
       )
     })
   )
-}
-
-function MyListButton({ user, content }: {
-  user: NonNullable<ReturnType<typeof useUser>["user"]>,
-  content: Detail
-}) {
-  const setFavorite = useMutation(api.favorite.setFavoriteList).withOptimisticUpdate(
-    (localStore, args) => {
-      const { userId, contentId } = args;
-      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId, contentId, }, "optimistic id" as Id<"favorite">);
-    },
-  );
-  const cancelFavorite = useMutation(api.favorite.cancelFavorite).withOptimisticUpdate(
-    (localStore) => {
-      localStore.setQuery(api.favorite.checkContentIsUserFavorite, { userId: user.id, contentId: content.id }, null);
-    },
-  )
-  const existingFavoriteId = useQuery(api.favorite.checkContentIsUserFavorite, {
-    userId: user.id,
-    contentId: content.id
-  })
-  const [_, formAction, isPending] = useActionState(async () => {
-    await Effect.gen(function* () {
-      const match = Match.type<typeof existingFavoriteId>().pipe(
-        Match.when(Match.string, (id) => {
-          return Effect.tryPromise({
-            try: () => cancelFavorite({ id }),
-            catch: () => new ConvexError()
-          })
-        }),
-        Match.when(Match.null, () => {
-          return Effect.tryPromise({
-            try: () => setFavorite({
-              userId: user.id,
-              contentId: content.id,
-              name: content.title,
-              imgPath: content.posterPath
-            }),
-            catch: () => new ConvexError()
-          })
-        }),
-        Match.when(Match.undefined, () => {
-          // existingFavoriteId is still loading  
-          Effect.runSync(Console.warn("User should not be able to submit form before existingFavoriteId is loaded"))
-          return new ConvexError()
-        }),
-        Match.exhaustive
-      )
-      yield* match(existingFavoriteId)
-    }).pipe(
-      convexErrorHandling,
-      Effect.runPromise
-    )
-  }, null)
-  return <form action={formAction}><Button variant="outline" type="submit" disabled={isPending} className="flex items-center space-x-2">
-    {
-      Match.value(existingFavoriteId).pipe(
-        Match.whenOr(Match.undefined, () => isPending, () => <Loader2 className="w-4 h-4 animate-spin" />),
-        Match.when(Match.nonEmptyString, () => <Minus className="w-4 h-4" />),
-        Match.orElse(() => <Plus className="w-4 h-4" />)
-      )
-    }
-    <span>My List</span>
-  </Button>
-  </form>
 }

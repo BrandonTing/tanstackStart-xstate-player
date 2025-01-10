@@ -8,7 +8,8 @@
     "start": "vinxi start",
     "format": "biome format --write",
     "lint": "biome lint",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "convex dev": "convex dev"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

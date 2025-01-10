@@ -1,26 +1,35 @@
 import { v } from "convex/values";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { mutation, query } from "./_generated/server";
 import { ConvexError, convexErrorHandling } from "./error";
 
-export const setFavoriteList = mutation({
+export const setRating = mutation({
 	args: {
 		contentId: v.number(),
 		userId: v.string(),
-		imgPath: v.string(),
-		name: v.string(),
+		rating: v.number(),
+		id: v.optional(v.id("rating")),
 	},
-	handler: async (ctx, { contentId, userId, imgPath, name }) => {
+	handler: async (ctx, { contentId, userId, id, rating }) => {
 		return Effect.gen(function* () {
 			const createTime = new Date().toISOString();
 			const data = yield* Effect.tryPromise({
 				try: () =>
-					ctx.db.insert("favorite", {
-						contentId,
-						userId,
-						imgPath,
-						name,
-					}),
+					Match.value(id).pipe(
+						Match.when(Match.undefined, (id) => {
+							return ctx.db.insert("rating", {
+								contentId,
+								userId,
+								rating,
+							});
+						}),
+						Match.orElse(async (id) => {
+							await ctx.db.patch(id, {
+								rating,
+							});
+							return id;
+						}),
+					),
 				catch: () => new ConvexError(),
 			});
 			return data;
@@ -28,7 +37,7 @@ export const setFavoriteList = mutation({
 	},
 });
 
-export const checkContentIsUserFavorite = query({
+export const getRating = query({
 	args: {
 		contentId: v.number(),
 		userId: v.string(),
@@ -38,7 +47,7 @@ export const checkContentIsUserFavorite = query({
 			const data = yield* Effect.tryPromise({
 				try: () =>
 					ctx.db
-						.query("favorite")
+						.query("rating")
 						.filter(({ and, eq, field }) => {
 							return and(
 								eq(field("userId"), userId),
@@ -46,21 +55,6 @@ export const checkContentIsUserFavorite = query({
 							);
 						})
 						.unique(),
-				catch: () => new ConvexError(),
-			});
-			return data?._id;
-		}).pipe(convexErrorHandling, Effect.runPromise);
-	},
-});
-
-export const cancelFavorite = mutation({
-	args: {
-		id: v.id("favorite"),
-	},
-	handler: async (ctx, { id }) => {
-		return Effect.gen(function* () {
-			const data = yield* Effect.tryPromise({
-				try: () => ctx.db.delete(id),
 				catch: () => new ConvexError(),
 			});
 			return data;
