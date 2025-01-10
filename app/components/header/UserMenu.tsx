@@ -1,10 +1,10 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { SignInButton, SignOutButton, SignUpButton, SignedIn, SignedOut, useUser } from '@clerk/tanstack-start'
 import { Link, useLocation } from '@tanstack/react-router'
 import { Info, LogOut, User } from 'lucide-react'
-import { Button } from './ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 export function UserMenu({
   onActiveChange
