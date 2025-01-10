@@ -16,7 +16,7 @@ function RouteComponent() {
   const { title } = Route.useSearch()
   return (
     <>
-      <h1 className="mx-auto mt-20 text-4xl font-bold text-white max-w-7xl">
+      <h1 className="mx-auto text-4xl font-bold text-white max-w-7xl">
         {title}
       </h1>
       <PlayerBoundary />

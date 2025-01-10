@@ -7,6 +7,7 @@ export default defineSchema({
 		userId: v.string(),
 		imgPath: v.string(),
 		name: v.string(),
+		type: v.union(v.literal("movies"), v.literal("tvShows")),
 	}),
 	rating: defineTable({
 		contentId: v.number(),

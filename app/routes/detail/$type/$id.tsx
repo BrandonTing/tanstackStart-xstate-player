@@ -4,6 +4,7 @@ import { MyListButton } from "@/components/detail/MyList";
 import { Rating } from "@/components/detail/Rating";
 import { SeasonDialog } from "@/components/detail/SeasonDialog";
 import { Button } from "@/components/ui/button";
+import type { ContentType } from "@/schema/base";
 import {
   getMovieDeferredDataProgram,
   getMoviesDetailProgram,
@@ -109,6 +110,7 @@ function resetScrollToTop(node: HTMLDivElement | null) {
   }
 }
 function RouteComponent() {
+  const { type } = Route.useParams()
   const { data, deferred, } = Route.useLoaderData();
   const deferredData = use(deferred);
   const { user } = useUser()
@@ -123,7 +125,7 @@ function RouteComponent() {
     }),
     Match.orElse((data) => {
       return (
-        <main className="pt-24">
+        <>
           <div className="container px-4 mx-auto mb-8">
             <div className="flex flex-col gap-8 md:flex-row">
               <div className="md:w-1/3">
@@ -164,7 +166,7 @@ function RouteComponent() {
                   </Link>
                   {
                     user && data ? (
-                      <MyListButton user={user} content={data} />
+                      <MyListButton user={user} content={data} type={type as ContentType} />
                     ) : null
                   }
                   {
@@ -203,7 +205,7 @@ function RouteComponent() {
               </div>
             </div>
           </div>
-        </main>
+        </>
       )
     })
   )

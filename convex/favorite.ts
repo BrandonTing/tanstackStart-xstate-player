@@ -9,8 +9,9 @@ export const setFavoriteList = mutation({
 		userId: v.string(),
 		imgPath: v.string(),
 		name: v.string(),
+		type: v.union(v.literal("movies"), v.literal("tvShows")),
 	},
-	handler: async (ctx, { contentId, userId, imgPath, name }) => {
+	handler: async (ctx, { contentId, userId, imgPath, name, type }) => {
 		return Effect.gen(function* () {
 			const createTime = new Date().toISOString();
 			const data = yield* Effect.tryPromise({
@@ -20,6 +21,7 @@ export const setFavoriteList = mutation({
 						userId,
 						imgPath,
 						name,
+						type,
 					}),
 				catch: () => new ConvexError(),
 			});
@@ -61,6 +63,28 @@ export const cancelFavorite = mutation({
 		return Effect.gen(function* () {
 			const data = yield* Effect.tryPromise({
 				try: () => ctx.db.delete(id),
+				catch: () => new ConvexError(),
+			});
+			return data;
+		}).pipe(convexErrorHandling, Effect.runPromise);
+	},
+});
+
+export const getFavoriteListByType = query({
+	args: {
+		userId: v.string(),
+		type: v.union(v.literal("movies"), v.literal("tvShows")),
+	},
+	handler: async (ctx, { userId, type }) => {
+		return Effect.gen(function* () {
+			const data = yield* Effect.tryPromise({
+				try: () =>
+					ctx.db
+						.query("favorite")
+						.filter(({ and, eq, field }) => {
+							return and(eq(field("userId"), userId), eq(field("type"), type));
+						})
+						.collect(),
 				catch: () => new ConvexError(),
 			});
 			return data;

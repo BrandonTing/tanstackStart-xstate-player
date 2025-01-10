@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { SignInButton, SignOutButton, SignUpButton, SignedIn, SignedOut, useUser } from '@clerk/tanstack-start'
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useMatch } from '@tanstack/react-router'
 import { Info, LogOut, User } from 'lucide-react'
 
 export function UserMenu({
@@ -11,8 +11,8 @@ export function UserMenu({
 }: {
   onActiveChange: (active: boolean) => void
 }) {
-  const { pathname } = useLocation()
   const { user } = useUser()
+  const matchUserInfo = useMatch({ shouldThrow: false, from: "/_auth/userInfo" })
   return <div>
     <SignedIn>
       <Popover onOpenChange={(open) => {
@@ -29,11 +29,11 @@ export function UserMenu({
         </PopoverTrigger>
         <PopoverContent className="w-56 bg-zinc-800 border-zinc-700">
           <div className="grid gap-4">
-            <Link href="/user-info">
+            <Link to="/userInfo" viewTransition search={{ type: "movies" }}>
               <Button
                 variant="ghost"
-                className={`w-full justify-start text-white hover:text-gray-300 hover:bg-zinc-700 ${pathname === '/user-info' ? 'bg-zinc-700' : ''
-                  }`}
+                className={`w-full justify-start text-white hover:text-gray-300 hover:bg-zinc-700 ${matchUserInfo ? 'bg-zinc-700' : ''}`}
+                disabled={Boolean(matchUserInfo)}
               >
                 <Info className="w-4 h-4 mr-2" />
                 User Info

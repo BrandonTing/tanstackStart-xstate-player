@@ -15,6 +15,7 @@ import { Route as TvShowsImport } from './routes/tvShows'
 import { Route as MoviesImport } from './routes/movies'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthUserInfoImport } from './routes/_auth/userInfo'
 import { Route as DetailTypeIdImport } from './routes/detail/$type/$id'
 import { Route as AuthVideoIdImport } from './routes/_auth/video.$id'
 
@@ -41,6 +42,12 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthUserInfoRoute = AuthUserInfoImport.update({
+  id: '/userInfo',
+  path: '/userInfo',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 const DetailTypeIdRoute = DetailTypeIdImport.update({
@@ -87,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TvShowsImport
       parentRoute: typeof rootRoute
     }
+    '/_auth/userInfo': {
+      id: '/_auth/userInfo'
+      path: '/userInfo'
+      fullPath: '/userInfo'
+      preLoaderRoute: typeof AuthUserInfoImport
+      parentRoute: typeof AuthImport
+    }
     '/_auth/video/$id': {
       id: '/_auth/video/$id'
       path: '/video/$id'
@@ -107,10 +121,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthRouteChildren {
+  AuthUserInfoRoute: typeof AuthUserInfoRoute
   AuthVideoIdRoute: typeof AuthVideoIdRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthUserInfoRoute: AuthUserInfoRoute,
   AuthVideoIdRoute: AuthVideoIdRoute,
 }
 
@@ -121,6 +137,7 @@ export interface FileRoutesByFullPath {
   '': typeof AuthRouteWithChildren
   '/movies': typeof MoviesRoute
   '/tvShows': typeof TvShowsRoute
+  '/userInfo': typeof AuthUserInfoRoute
   '/video/$id': typeof AuthVideoIdRoute
   '/detail/$type/$id': typeof DetailTypeIdRoute
 }
@@ -130,6 +147,7 @@ export interface FileRoutesByTo {
   '': typeof AuthRouteWithChildren
   '/movies': typeof MoviesRoute
   '/tvShows': typeof TvShowsRoute
+  '/userInfo': typeof AuthUserInfoRoute
   '/video/$id': typeof AuthVideoIdRoute
   '/detail/$type/$id': typeof DetailTypeIdRoute
 }
@@ -140,6 +158,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/movies': typeof MoviesRoute
   '/tvShows': typeof TvShowsRoute
+  '/_auth/userInfo': typeof AuthUserInfoRoute
   '/_auth/video/$id': typeof AuthVideoIdRoute
   '/detail/$type/$id': typeof DetailTypeIdRoute
 }
@@ -151,16 +170,25 @@ export interface FileRouteTypes {
     | ''
     | '/movies'
     | '/tvShows'
+    | '/userInfo'
     | '/video/$id'
     | '/detail/$type/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/movies' | '/tvShows' | '/video/$id' | '/detail/$type/$id'
+  to:
+    | '/'
+    | ''
+    | '/movies'
+    | '/tvShows'
+    | '/userInfo'
+    | '/video/$id'
+    | '/detail/$type/$id'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/movies'
     | '/tvShows'
+    | '/_auth/userInfo'
     | '/_auth/video/$id'
     | '/detail/$type/$id'
   fileRoutesById: FileRoutesById
@@ -205,6 +233,7 @@ export const routeTree = rootRoute
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
+        "/_auth/userInfo",
         "/_auth/video/$id"
       ]
     },
@@ -213,6 +242,10 @@ export const routeTree = rootRoute
     },
     "/tvShows": {
       "filePath": "tvShows.tsx"
+    },
+    "/_auth/userInfo": {
+      "filePath": "_auth/userInfo.tsx",
+      "parent": "/_auth"
     },
     "/_auth/video/$id": {
       "filePath": "_auth/video.$id.tsx",

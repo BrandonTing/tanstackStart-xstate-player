@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -18,7 +19,6 @@ import { useMatch, useNavigate } from "@tanstack/react-router";
 import { useMachine } from "@xstate/react";
 import { Match } from "effect";
 import { Loader2 } from "lucide-react";
-import { ScrollArea } from "./ui/scroll-area";
 
 export function SearchBar({
   onActiveChange

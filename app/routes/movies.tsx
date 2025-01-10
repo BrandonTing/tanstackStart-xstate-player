@@ -57,7 +57,7 @@ function RouteComponent() {
   const topRatedData = use(topRated);
   const upcomingData = use(upcoming);
   return (
-    <main className="container px-4 pt-24 mx-auto">
+    <>
       <h1 className="mb-8 text-4xl font-bold ">Movies</h1>
       {nowPlaying ? (
         <ContentGrid title="Now Playing" contents={nowPlaying} />
@@ -71,6 +71,6 @@ function RouteComponent() {
       {upcomingData ? (
         <ContentGrid title="Upcoming" contents={upcomingData} />
       ) : null}
-    </main>
+    </>
   );
 }

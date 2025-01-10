@@ -58,7 +58,7 @@ function RouteComponent() {
   const popularData = use(popular);
   const topRatedData = use(topRated);
   return (
-    <main className="container px-4 pt-24 mx-auto">
+    <>
       <h1 className="mb-8 text-4xl font-bold ">TV Shows</h1>
       {airingToday ? (
         <ContentGrid title="Airing Today" contents={airingToday} />
@@ -72,6 +72,6 @@ function RouteComponent() {
       {topRatedData ? (
         <ContentGrid title="Top Rated" contents={topRatedData} />
       ) : null}
-    </main>
+    </>
   );
 }

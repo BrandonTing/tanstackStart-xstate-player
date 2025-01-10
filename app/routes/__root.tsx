@@ -1,5 +1,5 @@
 // app/routes/__root.tsx
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header/Header";
 import "@/index.css";
 import css from "@/index.css?url";
 import { getClientEnvProgram } from "@/services/clientEnv";
@@ -59,7 +59,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <body className="text-white bg-black">
           <div className="min-h-screen">
             <Header />
-            <main>
+            <main className="container px-4 pt-24 mx-auto">
               <Provider>
                 {children}
               </Provider>

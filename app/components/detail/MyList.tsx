@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type { Detail } from "@/schema/base";
+import type { ContentType, Detail } from "@/schema/base";
 import type { useUser } from "@clerk/tanstack-start";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
@@ -12,9 +12,11 @@ import { useActionState } from "react";
 export function MyListButton({
   user,
   content,
+  type
 }: {
   user: NonNullable<ReturnType<typeof useUser>["user"]>;
   content: Detail;
+  type: ContentType
 }) {
   const setFavorite = useMutation(
     api.favorite.setFavoriteList,
@@ -56,6 +58,7 @@ export function MyListButton({
                 contentId: content.id,
                 name: content.title,
                 imgPath: content.posterPath,
+                type
               }),
             catch: () => new ConvexError(),
           });
