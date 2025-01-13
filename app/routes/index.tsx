@@ -50,9 +50,9 @@ const matcher = Match.type<{
 }>().pipe(
   Match.when({
     isFetching: true
-  }, () => <p className="pt-20 ">Loading...</p>),
+  }, () => <p className="pt-20 text-center">Loading...</p>),
   Match.not({ data: Match.defined }, () => {
-    return <p className="pt-20 ">Failed to fetch trending info</p>
+    return <p className="pt-20 text-center">Failed to fetch trending info</p>
   }),
   Match.orElse(({ data }) => {
     const { movies, tvShows } = data;

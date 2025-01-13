@@ -40,15 +40,25 @@ export const headerOpenMachine = setup({
 				Debounce: {
 					after: {
 						300: {
-							target: "Can Hide",
+							target: "Go To Can Hide",
 						},
 					},
 				},
-				"Can Hide": {
-					tags: ["Can Hide"],
+				"Go To Can Hide": {
 					type: "final",
 				},
 			},
+			onDone: {
+				target: "Can Hide",
+			},
+			on: {
+				"Fixed.Activate": {
+					target: "Fixed",
+				},
+			},
+		},
+		"Can Hide": {
+			tags: ["Show"],
 			on: {
 				Hide: {
 					target: "Hide",

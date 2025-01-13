@@ -51,8 +51,10 @@ const matcher = Match.type<{
 
 function RouteComponent() {
   const { isLoaded, userId } = useAuth()
-  return matcher({
-    isLoaded,
-    userId
-  })
+  return <main className="container px-4 pt-24 mx-auto">
+    {matcher({
+      isLoaded,
+      userId
+    })}
+  </main>
 }
