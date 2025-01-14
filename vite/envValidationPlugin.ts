@@ -20,8 +20,8 @@ export function envValidationPlugin(): Plugin {
 						Effect.runSync(Console.error(e));
 						return Effect.fail(null);
 					}),
+          Effect.runSync
 				)
-				.pipe(Effect.runSync);
 		},
 	};
 }
