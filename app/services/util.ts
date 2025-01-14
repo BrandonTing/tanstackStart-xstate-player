@@ -1,9 +1,13 @@
 import type { FetchError, JsonError } from "@/errors/error";
 import { Console, Effect } from "effect";
-import type { ConfigError } from "effect/ConfigError";
 import type { ParseError } from "effect/ParseResult";
+import type { EnvValidateError } from "vite/envValidationPlugin";
 
-export type ResourceError = ParseError | FetchError | JsonError | ConfigError;
+export type ResourceError =
+	| ParseError
+	| FetchError
+	| JsonError
+	| EnvValidateError;
 
 export function resourceErrorHandlingWithDefault<T>(defaultVal: T) {
 	return Effect.catchTags<

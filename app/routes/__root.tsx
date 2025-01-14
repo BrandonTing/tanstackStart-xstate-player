@@ -2,7 +2,7 @@
 import { Header } from "@/components/header/Header";
 import "@/index.css";
 import css from "@/index.css?url";
-import { getClientEnvProgram } from "@/services/clientEnv";
+import { getClientEnvProgram } from "@/services/env";
 import { ClerkProvider } from '@clerk/tanstack-start';
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -60,8 +60,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <div className="min-h-screen">
             <Header />
             <Provider>
-                {children}
-              </Provider>
+              {children}
+            </Provider>
           </div>
           <ScrollRestoration />
           <Scripts />
