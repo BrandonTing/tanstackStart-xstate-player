@@ -6,11 +6,11 @@ import { getClientEnvProgram } from "@/services/env";
 import { ClerkProvider } from '@clerk/tanstack-start';
 import type { QueryClient } from "@tanstack/react-query";
 import {
+  HeadContent,
   Outlet,
-  ScrollRestoration,
-  createRootRouteWithContext,
+  Scripts,
+  createRootRouteWithContext
 } from "@tanstack/react-router";
-import { Meta, Scripts } from "@tanstack/start";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { Effect } from "effect";
 import { type ReactNode, useState } from "react";
@@ -54,7 +54,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
     <ClerkProvider>
       <html lang="en-US">
         <head>
-          <Meta />
+          <HeadContent />
         </head>
         <body className="text-white bg-black">
           <div className="min-h-screen">
@@ -63,7 +63,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               {children}
             </Provider>
           </div>
-          <ScrollRestoration />
           <Scripts />
         </body>
       </html>

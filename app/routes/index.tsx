@@ -5,7 +5,7 @@ import { resourceErrorHandling } from "@/services/util";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 // app/routes/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/start";
+import { createServerFn } from "@tanstack/react-start";
 import { Effect, Match } from "effect";
 
 const getTrendingContent = createServerFn({

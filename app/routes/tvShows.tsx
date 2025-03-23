@@ -7,7 +7,7 @@ import {
 } from "@/services/tvShowsApi";
 import { resourceErrorHandling } from "@/services/util";
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/start";
+import { createServerFn } from "@tanstack/react-start";
 import { Chunk, Effect, Sink, Stream } from "effect";
 import { use } from "react";
 const getTVShowsProgram = (type: TVShowsApiKeyType) => {

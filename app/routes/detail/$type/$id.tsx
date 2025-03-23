@@ -19,7 +19,7 @@ import {
 import { useUser } from "@clerk/tanstack-start";
 import { queryOptions } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/start";
+import { createServerFn } from "@tanstack/react-start";
 import { Match } from "effect";
 import { Play, Star } from "lucide-react";
 import { use } from "react";
@@ -154,7 +154,10 @@ function RouteComponent() {
                     </p>
                     <div className="flex mb-6 space-x-4 text-black">
                       <Link
-                        to={`/video/${data.id}`}
+                        to='/video/$id'
+                        params={{
+                          id: `${data.id}`,
+                        }}
                         search={{
                           title: data.title,
                         }}

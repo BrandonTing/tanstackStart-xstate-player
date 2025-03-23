@@ -7,7 +7,7 @@ import {
 } from "@/services/movieApi";
 import { resourceErrorHandling } from "@/services/util";
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/start";
+import { createServerFn } from "@tanstack/react-start";
 import { Chunk, Effect, Sink, Stream } from "effect";
 import { use } from "react";
 
